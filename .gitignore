@@ -1,2 +1,11 @@
 *~
 .ipynb_checkpoints
+
+#IPython
+**/.ipynb_checkpoints
+
+#python
+**/*.py~
+
+#cpp
+**/*.cpp~
