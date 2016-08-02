@@ -11,4 +11,4 @@
 **/*.cpp~
 
 #Udacity
-Udacity/notMNIST*
+Tutorials/Udacity/notMNIST*
