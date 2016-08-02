@@ -9,3 +9,6 @@
 
 #cpp
 **/*.cpp~
+
+#Udacity
+Udacity/notMNIST*
