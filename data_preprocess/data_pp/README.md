@@ -44,8 +44,10 @@ The method of reading the file:
 from six.moves import cPickle as pickle
 file_name = 'depth_data'
 with open(file_name, 'rb') as f:
-	save = pickle.load(f)
-  	dataset = save['dataset']
-  	labelset = save['labelset']
+    save = pickle.load(f)
+    dataset = save['dataset']
+    names = save['names']
+    orientations = save['orientations']
   	del save
 ```
+Also refer to the example of imporint depth_data, 'import_data.py'

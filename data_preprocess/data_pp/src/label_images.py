@@ -52,6 +52,7 @@ for name in files:
 print("There are %d images to label" %num_images)
 
 
+count = 0
 for name in files:
 	debris = name.split('.')
 	if debris[-1] != 'bmp':
@@ -59,24 +60,31 @@ for name in files:
 	elif name.startswith('cropped'):
 		continue
 	else:
-		print("--------------------------------")
 		image_file = os.path.join(wd, name)
 		org_img = Image.open(image_file)
 		img = org_img.crop((lf_x, lf_y, rt_x, rt_y))
-		img.show()
-		print("The file name: "+name)
-		name = input("Input the name of the object: ")
-		face = input("Input the face: ")
-		orientation = input("Input the orientation: ")
-		
+#		img.show()
+		org_info = debris[0].split('-')
+		info = org_info[0].split('_')
+#		print("The file name: "+name)
+#		name = input("Input the name of the object: ")
+#		face = input("Input the face: ")
+#		orientation = input("Input the orientation: ")
+		position = info[1]
+		name = info[2]
+		face = 0
+		orientation = info[3] 
 		for i in range(num_shift):
 			for j in range(num_shift):
 				index = 3*j+i
 				# crop image
 				img = org_img.crop((lf_x + i*stride_shift, lf_y + j*stride_shift,
 					rt_x + i*stride_shift,rt_y + j*stride_shift))
-				cropped_name = wd+"/cropped_"+name +'_f'+str(face)+'_r'+str(orientation)+'_'+str(index)+'.bmp'
+				cropped_name = wd+"/cropped_"+name+'_p'+str(position)+'_f'+str(face)+'_r'+str(orientation)+'_'+str(index)+'.bmp'
 				img.save(cropped_name)
+
+		count += 1
+print("Done!")
 
 
 
