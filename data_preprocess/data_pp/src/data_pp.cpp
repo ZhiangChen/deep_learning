@@ -1,5 +1,5 @@
 /// data_pp.cpp
-/// Zhiang Chen, 7/2016
+/// Zhiang Chen, Wyatt Newman 7/2016
 /// Read pcd files in the current directory, extract interesting points and project to depth images.
 
 #include <ros/ros.h> 
