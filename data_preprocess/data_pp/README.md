@@ -20,23 +20,32 @@ Then it will generate depth images in the directory where the pcd files reside. 
 ### 3. Label the images
 Make sure the diretory only contains bmp files (also remove all backup hidden files)
 ```shell
-$ sudo apt-get install imagemagick
 $ roscd data_pp
 $ cd src
 $ chmod +x label_images.py
 $ ./label_images.py
 ```
-It will display every depth image, and require users to input the label according to the image. The labels should share same rule, like "toy_duck0", "toy_duck15", ... And it will generate different label values according to different labels. Same label shares same label value.
+It will crop all original depth image into 34x34 image and shift the cropped image to 9 positions.
 
-Then a file named 'depth_data' is created under the directory where the bmp files reside. It has 'dataset', 'labelset' and 'dictionary', that are saved as python dictionary:
+### 4. Add noise
+```shell
+$ sudo apt-get install imagemagick
+$ roscd data_pp
+$ cd src
+$ chmod +x add_noise.py
+$ ./add_noise.py
+```
+It will randomly add noises to the cropped images, which is to solve the problem caused by the NAN from kinect camera and improve the generalization as well. Then it will save the all the cropped depth images with noise into a file, 'depth_data'
+
+'depth_data' has 'dataset', 'names', 'faces' and 'orientations', that are saved as python dictionary:
 ```python
 {
 	'dataset': dataset,
-	'labelset': labelset,
-	'dictionary': dictionary,
+	'names': names,
+	'faces': faces,
+	'orientations': orientations
 }
 ```
-'dictionary' contains the dictionary that maps label to label value.
 
 The method of reading the file:
 '''schange to the directory where 'depth_data' resides'''
