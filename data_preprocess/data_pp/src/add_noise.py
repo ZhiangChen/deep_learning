@@ -16,7 +16,7 @@ import random
 pixel_depth = 225.0
 image_size = 34
 times_noise = 3
-num_noise = 10
+num_noise = 5
 
 wd = os.getcwd()
 print("Current directory is \""+wd+"\"")
@@ -46,7 +46,6 @@ for time in range(times_noise):
 		if name.startswith('cropped'):
 			image_file = os.path.join(wd, name)
 			img = Image.open(image_file)
-
 			debris = name.split('_')
 			names.append(debris[1])
 			faces.append(debris[3][1:])
@@ -55,7 +54,8 @@ for time in range(times_noise):
 				x_pxl = random.randint(0,image_size-1)
 				y_pxl = random.randint(0,image_size-1)
 				img.putpixel((x_pxl,y_pxl),0)
-			image_data = (ndimage.imread(wd+'/'+name).astype(float) - pixel_depth / 2) / pixel_depth
+			ndimg = np.array(img).astype(float)
+			image_data = (ndimg - pixel_depth / 2) / pixel_depth
 			if image_data.shape != (image_size, image_size):
 				raise Exception('Unexpected image shape: %s' % str(image_data.shape))
 			dataset[index,:,:] = image_data
