@@ -32,8 +32,8 @@ It will crop all original depth image into 34x34 image and shift the cropped ima
 $ sudo apt-get install imagemagick
 $ roscd data_pp
 $ cd src
-$ chmod +x label_images.py
-$ ./label_images.py
+$ chmod +x add_noise.py
+$ ./add_noise.py
 ```
 It will randomly add noises to the cropped images, which is to solve the problem caused by the NAN from kinect camera and improve the generalization as well. Then it will save the all the cropped depth images with noise into a file, 'depth_data'
 
