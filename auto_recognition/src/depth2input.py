@@ -16,6 +16,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 image_size = 34
 
@@ -37,11 +38,7 @@ class image_converter:
 		cv_image = self.bridge.imgmsg_to_cv2(data, desired_encoding="mono8")
 		cropped_image = cv_image[lf_y:rt_y,lf_x:rt_x].reshape((image_size, image_size))
 		ros_image = self.bridge.cv2_to_imgmsg(cropped_image, encoding="mono8")
-		try:
-			self.pub.publish(ros_image)
-		except CvBridgeError as e:
-			print(e)
-	
+		self.pub.publish(ros_image)
 
 if __name__ == '__main__':
 	rospy.init_node('depth2input',anonymous=True)

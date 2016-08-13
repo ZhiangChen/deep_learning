@@ -22,6 +22,7 @@ import random
 import operator
 import time
 import os
+import sys
 from auto_recognition.msg import PredictionMSG
 
 name2value = {'v8':0,'ducky':1,'stapler':2,'pball':3,'tball':4,'sponge':5,'bclip':6,'tape':7,'gstick':8,'cup':9,
@@ -127,12 +128,20 @@ class evaluator:
 		  		prediction = tf.nn.softmax(model(self.input_image))
 		  		pre_dict = dict(zip(list(range(num_labels)),prediction.eval()[0]))
 		        sorted_pre_dict = sorted(pre_dict.items(), key=operator.itemgetter(1))
+		        name1 = value2name[sorted_pre_dict[-1][0]]
+		        value1 = sorted_pre_dict[-1][1]
+		        name2 = value2name[sorted_pre_dict[-2][0]]
+		        value2 = sorted_pre_dict[-2][1]
 		        pre = PredictionMSG()
-		        pre.name1 = value2name[sorted_pre_dict[-1][0]]
-		        pre.value1 = sorted_pre_dict[-1][1]
-		        pre.name2 = value2name[sorted_pre_dict[-2][0]]
-		        pre.value2 = sorted_pre_dict[-2][1]
+		        pre.name1, pre.value1, pre.name2, pre.value2 = name1, value1, name2, value2
 		        self.pub.publish(pre)
+		        sys.stdout.write(".")
+      			sys.stdout.flush()
+        		#tile = name1+': '+str(value1)+'\n'+name2+': '+str(value2)
+        		#image = self.input_image.reshape((image_size,image_size)).astype(np.float32)
+        		#plt.imshow(image,cmap='Greys_r')
+        		#plt.suptitle(tile, fontsize=12)
+        		#plt.show()
 		          	
 
 if __name__ == '__main__':

@@ -98,7 +98,7 @@ int main(int argc, char** argv)
     sensor_msgs::PointCloud2 ros_kinect, ros_box, ros_tf_kinect, ros_tf_box, ros_tf_ds, ros_tf_ds_box; 
 
 // sensor msg depth image
-	sensor_msgs::Image depth_image;    
+	  sensor_msgs::Image depth_image;    
 
 // The transform from camera to plane is hard-coded.
     Eigen::Affine3f A_plane_wrt_camera;
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
     A_plane_wrt_camera = pclUtils.make_affine_from_plane_params(plane_parameters,plane_centroid3f);
 
 // Image projection variables
-	Eigen::Vector3f cloud_pt;
+	  Eigen::Vector3f cloud_pt;
     double x,y,z;
   	double v,vc,u,uc;
   	int i,j;
@@ -123,6 +123,7 @@ int main(int argc, char** argv)
   	cv::Mat image(Nu,Nv,CV_8U,cv::Scalar(0));
 
 // wait for kinect data
+    ROS_INFO("Initialized!");
   	while(!g_got_data)
   	{
   		ros::spinOnce();
@@ -152,7 +153,7 @@ int main(int argc, char** argv)
     	pub_depth_image.publish(depth_image);
     	// refresh data
     	g_got_data = false;
-    	while(!g_got_data)
+    	while(!g_got_data && ros::ok())
     	{
     		ros::spinOnce();
     		ros::Duration(0.1).sleep();
