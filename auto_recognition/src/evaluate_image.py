@@ -105,7 +105,8 @@ def accuracy(predictions, labels):
 class evaluator:
 	def __init__(self):
 		'''Initialize ros publisher, subscriber'''
-		self.pub  = rospy.Publisher('prediction',PredictionMSG,queue_size=1)
+		self.pub1  = rospy.Publisher('prediction',PredictionMSG,queue_size=1)
+		self.pub2  = rospy.Publisher('pre_image',Image,queue_size=1)
 		self.sub1 = rospy.Subscriber('cropped_depth_image',Image,self.callback,queue_size=1)
 		self.sub2 = rospy.Subscriber('cropped_depth_image',Image,self.valuate,queue_size=1)
 		self.bridge = CvBridge()
@@ -117,6 +118,7 @@ class evaluator:
 		np_image = (cv_image.astype(np.float32) - pixel_depth / 2) / pixel_depth
 		self.input_image = np_image.reshape((1,image_size,image_size,num_channels)).astype(np.float32)
 		self.got_image = True
+
 
 	def valuate(self,data):
 		config = tf.ConfigProto()
@@ -134,13 +136,22 @@ class evaluator:
 		        value2 = sorted_pre_dict[-2][1]
 		        pre = PredictionMSG()
 		        pre.name1, pre.value1, pre.name2, pre.value2 = name1, value1, name2, value2
-		        self.pub.publish(pre)
+		        self.pub1.publish(pre)
 		        sys.stdout.write(".")
       			sys.stdout.flush()
-        		#tile = name1+': '+str(value1)+'\n'+name2+': '+str(value2)
+      			'''cv_image = self.bridge.imgmsg_to_cv2(data, desired_encoding="mono8")
+      			font = cv2.FONT_HERSHEY_SIMPLEX
+        		obj1 = name1+': '+str(value1)
+        		obj2 = name2+': '+str(value2)
+        		cv2.putText(cv_image,obj1,(0,25),font,0.2,(255,255,255),1)
+        		cv2.putText(cv_image,obj2,(0,31),font,0.2,(255,255,255),1)
+        		ros_image = self.bridge.cv2_to_imgmsg(cv_image, encoding="mono8")
+        		self.pub2.publish(ros_image)'''
         		#image = self.input_image.reshape((image_size,image_size)).astype(np.float32)
         		#plt.imshow(image,cmap='Greys_r')
+        		#self.img_obj.set_data(image)
         		#plt.suptitle(tile, fontsize=12)
+        		#plt.draw()
         		#plt.show()
 		          	
 
