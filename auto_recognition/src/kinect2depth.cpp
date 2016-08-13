@@ -59,7 +59,7 @@ using namespace std;
 /*************************************/
 // 500x250x250
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr g_kinect_ptr;
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr g_kinect_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
 bool g_got_data = false;
 void kinectCallback(const sensor_msgs::PointCloud2ConstPtr &cloud)
 {
@@ -70,7 +70,7 @@ void kinectCallback(const sensor_msgs::PointCloud2ConstPtr &cloud)
 
 int main(int argc, char** argv) 
 {
-    ros::init(argc, argv, "data_pp"); //node name
+    ros::init(argc, argv, "kinect2depth"); //node name
     ros::NodeHandle nh;
     PclUtils pclUtils(&nh);
 

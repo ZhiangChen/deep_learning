@@ -69,7 +69,9 @@
   <run_depend>image_transport</run_depend>
 
   <build_depend>cmake_modules</build_depend>
-
+  <build_depend>message_generation</build_depend>
+  <run_depend>message_generation</run_depend>
+  <run_depend>message_runtime</run_depend>
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
