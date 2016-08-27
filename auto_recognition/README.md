@@ -23,9 +23,9 @@ Receive the cropped image from "cropped_depth_image", and reformat its shape to 
 ```shell
 roslaunch kinect2_bridge kinect2_bridge.launch
 rosrun auto_recognition kinect2depth
-rosrun auto_recognition depth2input
-rosrun auto_recognition evaluate_image
-rosrun image_view image_view image:= cropped_depth_image
+rosrun auto_recognition depth2input.py
+rosrun auto_recognition evaluate_image.py
+rosrun image_view image_view image:=cropped_depth_image
 rostopic echo prediction
 ```
 
