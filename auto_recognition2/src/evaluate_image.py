@@ -124,7 +124,7 @@ class evaluator:
 		config = tf.ConfigProto()
 		#config.log_device_placement = True   
 		with tf.Session(graph=graph, config = config) as session:
-	  		saver.restore(session, "model.ckpt")
+	  		saver.restore(session, "new_model.ckpt")
   			while self.got_image:
 		  		self.got_image = False
 		  		prediction = tf.nn.softmax(model(self.input_image))

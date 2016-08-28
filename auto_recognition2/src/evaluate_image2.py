@@ -94,7 +94,7 @@ with graph.as_default():
 config = tf.ConfigProto()
 #config.log_device_placement = True 
 session = tf.Session(graph=graph, config = config)
-saver.restore(session, "model.ckpt")
+saver.restore(session, "new_model.ckpt")
 
 def accuracy(predictions, labels):
   	return (100.0 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1))/ predictions.shape[0])
