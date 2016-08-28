@@ -31,7 +31,7 @@
 #include <opencv2/highgui/highgui.hpp>
 using namespace std;
 
-//#define DISPLAY
+#define DISPLAY
 void loadParameters(ros::NodeHandle nh);
 sensor_msgs::Image project(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  box_ptr, int npts_cloud);
 void box_filter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  inputCloud, Eigen::Vector3f pt_min, Eigen::Vector3f pt_max, vector<int> &indices);

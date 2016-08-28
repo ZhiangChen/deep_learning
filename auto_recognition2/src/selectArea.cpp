@@ -31,8 +31,8 @@ void box_filter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  inputCloud, Eigen::Vecto
 #define bmz 0.1
 #define h_proction 0.15
 #define focal_len 200.0
-#define Nv 120
-#define Nu 120
+#define Nv 200
+#define Nu 200
 
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr g_kinect_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
 bool g_got_data = false;
@@ -105,8 +105,8 @@ int main(int argc, char** argv)
     		pcl::computePointNormal(*selected_ptr, plane_parameters, curvature); 
     		plane_centroid = pclUtils.compute_centroid(selected_ptr);
     		dist_centroid = plane_centroid.norm();
-    		mDis = dist_centroid + h_proction/2;
-    		nDis = dist_centroid - h_proction/2;
+    		mDis = dist_centroid + h_proction/2 - 0.013;
+    		nDis = dist_centroid - h_proction/2 + 0.013;
     		plane_centroid4[0] = plane_centroid[0];
     		plane_centroid4[1] = plane_centroid[1];
     		plane_centroid4[2] = plane_centroid[2];
@@ -169,6 +169,7 @@ int main(int argc, char** argv)
     		myfile.open ("auto_recognition2.yaml");
     		myfile << text;
     		myfile.close();
+            cout<<text<<endl;
     		// display
     		pcl::toROSMsg(*tf_kinect_ptr, ros_tf_kinect);
 	    	//pcl::toROSMsg(*kinect_ptr, ros_kinect);
