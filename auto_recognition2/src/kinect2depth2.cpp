@@ -157,7 +157,7 @@ int main(int argc, char** argv)
     	while(!g_got_data && ros::ok())
     	{
     		ros::spinOnce();
-    		ros::Duration(0.1).sleep();
+    		ros::Duration(0.5).sleep();
     	}
 
 #ifdef DISPLAY

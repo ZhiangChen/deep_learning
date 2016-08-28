@@ -16,7 +16,6 @@ from std_msgs.msg import String
 from cv_bridge import CvBridge, CvBridgeError
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 import random
 import operator
 import time
@@ -38,22 +37,25 @@ class savor:
 	def __init__(self):
 		'''Initialize ros publisher, subscriber'''
 		self.sub = rospy.Subscriber('depth_image',Image,self.callback,queue_size=1)
+		self.pub = rospy.Publisher('/cropped_depth_image',Image,queue_size=1)
 		self.bridge = CvBridge()
 		rospy.loginfo("Initialized!")
 
 	def callback(self,data):
 		cv_image = self.bridge.imgmsg_to_cv2(data, desired_encoding="mono8")
+		cropped_image = cv_image[lf_y: rt_y, lf_x : rt_x].reshape((image_size, image_size))
+		ros_image = self.bridge.cv2_to_imgmsg(cropped_image, encoding="mono8")
+		self.pub.publish(ros_image)
 		name = raw_input("Input the name of object (or Enter to update): ")
-		if name == '':
-			sys.exit("Exit!")
-		position = raw_input("Input the position of the object: ")
-		for i in range(num_shift):
-			for j in range(num_shift):
-				index = 3*j+i
-				# crop image
-				cropped_image = cv_image[lf_y+j : rt_y+j, lf_x+i : rt_x+i].reshape((image_size, image_size))
-				cropped_name = wd+"/cropped_"+name+'_p'+str(position)+'_f'+str(face)+'_r'+str(orientation)+'_'+str(index)+'.bmp'
-				cv2.imwrite(cropped_name,cropped_image)
+		if name != '':
+			position = raw_input("Input the position of the object: ")
+			for i in range(num_shift):
+				for j in range(num_shift):
+					index = 3*j+i
+					# crop image
+					cropped_image = cv_image[lf_y+j : rt_y+j, lf_x+i : rt_x+i].reshape((image_size, image_size))
+					cropped_name = wd+"/cropped_"+name+'_p'+str(position)+'_f'+str(face)+'_r'+str(orientation)+'_'+str(index)+'.bmp'
+					cv2.imwrite(cropped_name,cropped_image)
 		
 
 		          	

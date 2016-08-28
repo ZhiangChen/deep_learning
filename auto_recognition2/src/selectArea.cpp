@@ -105,8 +105,8 @@ int main(int argc, char** argv)
     		pcl::computePointNormal(*selected_ptr, plane_parameters, curvature); 
     		plane_centroid = pclUtils.compute_centroid(selected_ptr);
     		dist_centroid = plane_centroid.norm();
-    		mDis = dist_centroid + h_proction/2 - 0.013;
-    		nDis = dist_centroid - h_proction/2 + 0.013;
+    		mDis = dist_centroid + h_proction/2 - 0.02;
+    		nDis = dist_centroid - h_proction/2 - 0.02;
     		plane_centroid4[0] = plane_centroid[0];
     		plane_centroid4[1] = plane_centroid[1];
     		plane_centroid4[2] = plane_centroid[2];
