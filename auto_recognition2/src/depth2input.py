@@ -22,8 +22,6 @@ image_size = 34
 
 lf_x = rospy.get_param("lf_x")
 lf_y = rospy.get_param("lf_y")
-print(lf_x)
-print(lf_y)
 rt_x = lf_x + image_size
 rt_y = lf_y + image_size
 
