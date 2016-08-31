@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 '''
 Zhiang Chen
 Aug,2016
@@ -11,6 +11,7 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 from six.moves import cPickle as pickle
+import rospy
 
 pixel_depth = 225.0
 image_size = 34
@@ -20,6 +21,8 @@ stride_shift = 1
 
 lf_x = 16
 lf_y = 72
+lf_x = rospy.get_param("lf_x")
+lf_y = rospy.get_param("lf_y")+1
 rt_x = lf_x + image_size
 rt_y = lf_y + image_size
 
@@ -29,14 +32,14 @@ label_num = 0
 wd = os.getcwd()
 print("Current directory is \""+wd+"\"")
 print("Start to label the images in this directory? (yes/no)")
-cmd = input()
+cmd = raw_input()
 assert cmd == "yes" or cmd == "no"
 if cmd == "no":
 	print("Input correct directory:")
 	wd = input()
 	assert os.path.isdir(wd)
 
-input("Before labeling, make sure there are no subdirectories in this folder!\nPress Enter to continue")
+raw_input("Before labeling, make sure there are no subdirectories in this folder!\nPress Enter to continue")
 
 files = os.listdir(wd)
 

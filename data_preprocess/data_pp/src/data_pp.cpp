@@ -23,6 +23,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+void loadParameters(ros::NodeHandle nh);
 void box_filter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  inputCloud, Eigen::Vector3f pt_min, Eigen::Vector3f pt_max, vector<int> &indices);
 void projection_method1(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  box_ptr, int npts_cloud, string fname);
 void projection_method2(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  box_ptr, int npts_cloud, string fname, double resolution);
@@ -33,26 +34,26 @@ using namespace std;
 
 /*********  Hyperparameters  **********/
 // Plane Paramters 
-#define A 0.00081042
-#define B 0.503923
-#define C 0.863748
-#define D -0.800717
-#define cX -0.14675
-#define cY 0.109414
-#define cZ 0.863329
+float _A = 0.00081042;
+float _B = 0.503923;
+float _C = 0.863748;
+float _D = -0.800717;
+float _cX = -0.14675;
+float _cY = 0.109414;
+float _cZ = 0.863329;
 // Box Filter Parameters
-#define bnX -0.06
-#define bnY -0.11
-#define bnZ -0.015
-#define bmX 0.115
-#define bmY 0.08
-#define bmZ 0.1
+float _bnX = -0.06;
+float _bnY = -0.11;
+float _bnZ = -0.015;
+float _bmX = 0.115;
+float _bmY = 0.08;
+float _bmZ = 0.1;
 // Projection Parameters
-#define mDis 0.92  // darkest, float!
-#define nDis 0.77 // brightest, float!
-#define Nv 120
-#define Nu 120
-#define focal_len 200.0 //220.0 may be good? float!
+float _mDis = 0.92;  // darkest, float!
+float _nDis = 0.77; // brightest, float!
+float _Nv = 120;
+float _Nu = 120;
+float _focal_len = 200.0; //220.0 may be good? float!
 /*************************************/
 // 500x250x250
 
@@ -60,6 +61,7 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "data_pp"); //node name
     ros::NodeHandle nh;
     PclUtils pclUtils(&nh);
+    loadParameters(nh);
 
 // publishers
     ros::Publisher pub_kinect = nh.advertise<sensor_msgs::PointCloud2> ("/kinect", 1);
@@ -85,8 +87,8 @@ int main(int argc, char** argv) {
     Eigen::Vector4f plane_parameters;
     Eigen::Vector3f plane_centroid3f;
 
-    plane_parameters<<A, B, C, D;
-    plane_centroid3f<<cX, cY, cZ;
+    plane_parameters<<_A, _B, _C, _D;
+    plane_centroid3f<<_cX, _cY, _cZ;
     
     A_plane_wrt_camera = pclUtils.make_affine_from_plane_params(plane_parameters,plane_centroid3f);
 
@@ -95,12 +97,12 @@ int main(int argc, char** argv) {
     double x,y,z;
   	double v,vc,u,uc;
   	int i,j;
-  	uc = Nu/2.0;
-  	vc = Nv/2.0;
+  	uc = _Nu/2.0;
+  	vc = _Nv/2.0;
   	uchar gray_level;
   	double r;
   	int npts_cloud;
-  	cv::Mat image(Nu,Nv,CV_8U,cv::Scalar(0));
+  	cv::Mat image(_Nu,_Nv,CV_8U,cv::Scalar(0));
 
 // read the list of names
     ifstream file;
@@ -131,8 +133,8 @@ int main(int argc, char** argv) {
     ROS_INFO("There are %d images in total.", num);
     // parameters for box filter wrt plane coords
     Eigen::Vector3f box_pt_min,box_pt_max;
-    box_pt_min<<bnX,bnY,bnZ;
-    box_pt_max<<bmX,bmY,bmZ;
+    box_pt_min<<_bnX,_bnY,_bnZ;
+    box_pt_max<<_bmX,_bmY,_bmZ;
 
     for (int ipic=0; ipic<num; ipic++) // i-th picture
     {
@@ -205,11 +207,11 @@ void projection_method1(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  box_ptr, int npt
     double x,y,z;
   	double v,vc,u,uc;
   	int i,j;
-  	uc = Nu/2.0;
-  	vc = Nv/2.0;
+  	uc = _Nu/2.0;
+  	vc = _Nv/2.0;
   	uchar gray_level;
   	double r;
-  	cv::Mat image(Nu,Nv,CV_8U,cv::Scalar(0));
+  	cv::Mat image(_Nu,_Nv,CV_8U,cv::Scalar(0));
 
 	// project to a depth image
     for (int ipt = 0;ipt<npts_cloud;ipt++) // i-th point
@@ -220,19 +222,19 @@ void projection_method1(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  box_ptr, int npt
 	    x = cloud_pt[0];
 	    if ((z==z)&&(x==x)&&(y==y)) 
 	    { 
-	       u = uc + focal_len*x/z;
+	       u = uc + _focal_len*x/z;
 	       i = round(u);
-	       v = vc + focal_len*y/z;
+	       v = vc + _focal_len*y/z;
 	       j = round(v);
-	       if ((i>=0)&&(i<Nu)&&(j>=0)&&(j<Nv)) 
+	       if ((i>=0)&&(i<_Nu)&&(j>=0)&&(j<_Nv)) 
 	       {
 	           // convert z to an intensity:
 	           r = sqrt(z*z+y*y+x*x);
-	           if (r>mDis) gray_level=0;
-	           else if (r<nDis) gray_level=0;
+	           if (r>_mDis) gray_level=0;
+	           else if (r<_nDis) gray_level=0;
 	           else 
 	           {
-	           		gray_level = (uchar) (255*(mDis-r)/(mDis-nDis));
+	           		gray_level = (uchar) (255*(_mDis-r)/(_mDis-_nDis));
 	           }
 	           image.at<uchar>(j,i)= gray_level;
 	       	}
@@ -252,3 +254,24 @@ void projection_method1(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  box_ptr, int npt
 /*
 void projection_method2(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  box_ptr, int npts_cloud, string fname, double resolution)
 */
+void loadParameters(ros::NodeHandle nh)
+{
+    nh.getParam("A",_A);
+    nh.getParam("B",_B);
+    nh.getParam("C",_C);
+    nh.getParam("D",_D);
+    nh.getParam("cX",_cX);
+    nh.getParam("cY",_cY);
+    nh.getParam("cZ",_cZ);
+    nh.getParam("bnX",_bnX);
+    nh.getParam("bnY",_bnY);
+    nh.getParam("bnZ",_bnZ);
+    nh.getParam("bmX",_bmX);
+    nh.getParam("bmY",_bmY);
+    nh.getParam("bmZ",_bmZ);
+    nh.getParam("Nv",_Nv);
+    nh.getParam("Nu",_Nu);
+    nh.getParam("focal_len",_focal_len);
+    nh.getParam("mDis",_mDis);
+    nh.getParam("nDis",_nDis);
+}

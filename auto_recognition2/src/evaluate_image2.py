@@ -24,16 +24,21 @@ import operator
 import time
 import os
 import sys
-from auto_recognition.msg import PredictionMSG
+from auto_recognition2.msg import PredictionMSG
 
-name2value = {'v8':0,'ducky':1,'stapler':2,'pball':3,'tball':4,'sponge':5,'bclip':6,'tape':7,'gstick':8,'cup':9,
-              'pen':10,'calc':11,'tmeas':12,'bottle':13,'cpin':14,'scissors':15,'stape':16,'gball':17,'orwidg':18,
-             'glue':19,'spoon':20,'fork':21,'nerf':22,'eraser':23}
+name2value = {'v8':0,'duck':1,'stapler':2,'pball':3,'tball':4,'sponge':5,'bclip':6,'tape':7,'gstick':8,'cup':9,
+              'pen':10,'calc':11,'blade':12,'bottle':13,'cpin':14,'scissors':15,'stape':16,'gball':17,'orwidg':18,
+             'glue':19,'spoon':20,'fork':21,'nerf':22,'eraser':23,'empty':24}
+name2string = {'v8':'v8 can','duck':'ducky','stapler':'stapler','pball':'ping pang ball','tball':'tennis ball','sponge':'sponge',
+               'bclip':'binder clip','tape':'big tape','gstick':'glue stick','cup':'cup','pen':'pen','calc':'calculator',
+               'blade':'razor','bottle':'bottle','cpin':'clothespin','scissors':'scissors','stape':'small tape','gball':'golf ball',
+               'orwidg':'orange thing','glue':'glue','spoon':'spoon','fork':'fork','nerf':'nerf gun','eraser':'eraser',
+               'empty':'empty plate'}
 value2name = dict((value,name) for name,value in name2value.items()) 
 
 pixel_depth = 225.0
 image_size = 34
-num_labels = 24
+num_labels = 25
 num_channels = 1
 batch_size = 16
 patch_size = 5
@@ -43,6 +48,7 @@ depth2 = 16 #the depth of 2nd convnet
 C5_units = 120
 F6_units = 84
 F7_units = 10
+
 
 graph = tf.Graph()
 with graph.as_default():
@@ -116,12 +122,14 @@ class evaluator:
 			prediction = tf.nn.softmax(model(self.input_image))
 	  		pre_dict = dict(zip(list(range(num_labels)),prediction.eval()[0]))
 	        sorted_pre_dict = sorted(pre_dict.items(), key=operator.itemgetter(1))
-	        name1 = value2name[sorted_pre_dict[-1][0]]
-	        value1 = sorted_pre_dict[-1][1]
-	        name2 = value2name[sorted_pre_dict[-2][0]]
-	        value2 = sorted_pre_dict[-2][1]
+        	name1 = value2name[sorted_pre_dict[-1][0]]
+        	name1 = name2string[name1]
+        	value1 = str(sorted_pre_dict[-1][1])
+        	name2 = value2name[sorted_pre_dict[-2][0]]
+        	name2 = name2string[name2]
+        	value2 = str(sorted_pre_dict[-2][1])
 	        pre = PredictionMSG()
-	        pre.name1, pre.value1, pre.name2, pre.value2 = name1, value1, name2, value2
+	        pre.name1, pre.value1, pre.name2, pre.value2 = name1, float(value1), name2, float(value2)
 	        self.pub1.publish(pre)
 	        sys.stdout.write(".")
 	        sys.stdout.flush()

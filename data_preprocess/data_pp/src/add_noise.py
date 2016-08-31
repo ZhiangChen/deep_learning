@@ -16,7 +16,7 @@ import random
 pixel_depth = 225.0
 image_size = 34
 times_noise = 3
-num_noise = 5
+num_noise = 3
 
 wd = os.getcwd()
 print("Current directory is \""+wd+"\"")
