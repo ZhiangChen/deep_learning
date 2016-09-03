@@ -12,6 +12,7 @@
 
 #Udacity
 Tutorials/Udacity/notMNIST*
+Tutorials/Udacity/*.zip
 
 #PCD files
 images/pcd
