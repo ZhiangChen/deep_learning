@@ -93,17 +93,27 @@ int main(int argc, char** argv)
 	ROS_INFO("Got kinect data!");
 	g_got_data = false;
 	kinect_ptr = g_kinect_ptr;
-	ROS_INFO("Select a patch!");
+	ROS_INFO("Select a centroid!");
+	bool got_param = false;
 
     while(ros::ok())
     {
     	if (pclUtils.got_selected_points())
     	{
     		pclUtils.get_copy_selected_points(selected_ptr); 
-    		selected_nm = selected_ptr->points.size();
+    		//selected_nm = selected_ptr->points.size();
     		//ROS_INFO("The number of selected points is: %d", selected_nm);
-    		pcl::computePointNormal(*selected_ptr, plane_parameters, curvature); 
     		plane_centroid = pclUtils.compute_centroid(selected_ptr);
+    		pclUtils.reset_got_selected_points();
+    		ROS_INFO("Select a patch!");
+    		while(!pclUtils.got_selected_points())
+			{
+				ros::spinOnce();
+				ros::Duration(0.5).sleep();
+			}
+			pclUtils.reset_got_selected_points();
+			pclUtils.get_copy_selected_points(selected_ptr); 
+			pcl::computePointNormal(*selected_ptr, plane_parameters, curvature); 
     		dist_centroid = plane_centroid.norm();
     		mDis = dist_centroid + h_proction/2 ;
     		nDis = dist_centroid - h_proction/2 ;
@@ -137,7 +147,7 @@ int main(int argc, char** argv)
     		u = uc + focal_len*x/z;
 	        i = round(u)+2;
 	        v = vc + focal_len*y/z;
-	        j = round(v);
+	        j = round(v)+1;
 
     		// store parameters
     		string text;
@@ -170,6 +180,11 @@ int main(int argc, char** argv)
     		myfile << text;
     		myfile.close();
             cout<<text<<endl;
+            got_param = true;
+			ROS_INFO("Select a new centroid!");
+    	}
+    	if(got_param)
+    	{
     		// display
     		pcl::toROSMsg(*tf_kinect_ptr, ros_tf_kinect);
 	    	//pcl::toROSMsg(*kinect_ptr, ros_kinect);
