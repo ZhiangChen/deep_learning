@@ -18,12 +18,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-image_size = 34
 
-lf_x = rospy.get_param("lf_x")
-lf_y = rospy.get_param("lf_y")
-rt_x = lf_x + image_size
-rt_y = lf_y + image_size
+lf_x = rospy.get_param("tplf_x")
+lf_y = rospy.get_param("tplf_y")
+rt_x = rospy.get_param("btrt_x")
+rt_y = rospy.get_param("btrt_y")
+image_size = rospy.get_param("image_size")
 
 class image_converter:
 
@@ -37,7 +37,7 @@ class image_converter:
 	def callback(self,data):
 		cv_image = self.bridge.imgmsg_to_cv2(data, desired_encoding="mono8")
 		cropped_image = cv_image[lf_y:rt_y,lf_x:rt_x].reshape((image_size, image_size))
-		cv2.imwrite('cropped_image.bmp',cropped_image)
+		#cv2.imwrite('cropped_image.bmp',cropped_image)
 		ros_image = self.bridge.cv2_to_imgmsg(cropped_image, encoding="mono8")
 		self.pub.publish(ros_image)
 

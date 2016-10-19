@@ -80,10 +80,10 @@ int main(int argc, char** argv)
     vector<int> indices;
     double mDis; // projection parameter, darkest
     double nDis; // projection parameter, brightest
-    Eigen::Vector3f top_left; // wrt camera
+    Eigen::Vector3f top_left,bottom_right; // wrt camera
     double u,v,uc,vc;
     double x,y,z;
-    int i,j;
+    int i,j,i2,j2;
 
     while(!g_got_data)
 	{
@@ -149,6 +149,19 @@ int main(int argc, char** argv)
 	        v = vc + focal_len*y/z;
 	        j = round(v)+1;
 
+            bottom_right[0] = plane_centroid_wrt_plane[0] + box_x/2;
+            bottom_right[1] = plane_centroid_wrt_plane[1] - box_y/2;
+            bottom_right[2] = 0;
+            z = bottom_right[2];
+            y = bottom_right[1];
+            x = bottom_right[0];
+            uc = Nu/2.0;
+            vc = Nv/2.0;
+            u = uc + focal_len*x/z;
+            i2 = round(u)+2;
+            v = vc + focal_len*y/z;
+            j2 = round(v)+1;
+
     		// store parameters
     		string text;
     		text = "#Plane Parameters\n";
@@ -173,8 +186,11 @@ int main(int argc, char** argv)
     		text += "mDis: " + boost::lexical_cast<std::string>(mDis) + "\n";
     		text += "nDis: " + boost::lexical_cast<std::string>(nDis) + "\n";
     		text += "#Cropped Image\n";
-    		text += "lf_x: " + boost::lexical_cast<std::string>(i) + "\n";
-    		text += "lf_y: " + boost::lexical_cast<std::string>(j) + "\n";
+    		text += "tplf_x: " + boost::lexical_cast<std::string>(i) + "\n";
+    		text += "tplf_y: " + boost::lexical_cast<std::string>(j) + "\n";
+            text += "btrt_x: " + boost::lexical_cast<std::string>(i2) + "\n";
+            text += "btrt_y: " + boost::lexical_cast<std::string>(j2) + "\n";
+            text += "image_size: 34";
     		ofstream myfile;
     		myfile.open ("auto_recognition2.yaml");
     		myfile << text;

@@ -12,9 +12,10 @@ from PIL import Image
 from scipy import ndimage
 from six.moves import cPickle as pickle
 import random
+import rospy
 
 pixel_depth = 225.0
-image_size = 34
+image_size = rospy.get_param("image_size")
 times_noise = 3
 num_noise = 3
 
@@ -37,7 +38,7 @@ print("The number of the cropped images: ", num_images)
 num_images *= times_noise
 dataset = np.ndarray(shape=(num_images, image_size, image_size),dtype=np.float32)
 names = list()
-faces = list()
+phases = list()
 orientations = list()
 
 index = 0
@@ -48,7 +49,7 @@ for time in range(times_noise):
 			img = Image.open(image_file)
 			debris = name.split('_')
 			names.append(debris[1])
-			faces.append(debris[3][1:])
+			phases.append(debris[3][1:])
 			orientations.append(debris[4][1:])
 			for n in range(num_noise):
 				x_pxl = random.randint(0,image_size-1)
@@ -67,7 +68,7 @@ with open(data_file,'wb') as f:
 	save={
 		'dataset': dataset,
 		'names': names,
-		'faces': faces,
+		'phases': phases,
 		'orientations': orientations
 	}
 	pickle.dump(save,f,pickle.HIGHEST_PROTOCOL)
