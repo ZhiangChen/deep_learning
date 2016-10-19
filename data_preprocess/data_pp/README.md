@@ -3,6 +3,7 @@
 ### 1. Create name list file
 Make sure the directory only contains pcd files (remove all backup hidden files)
 ```shell
+$ rosparam load auto_recognition2/auto_recognition2.yaml
 $ roscd data_pp
 $ cd src 
 $ chmod +x list_names.py
@@ -17,13 +18,13 @@ $ rosrun data_pp data_pp
 ```
 Then it will generate depth images in the directory where the pcd files reside. Users need to create a new folder and copy all bmp images into new folder.
 
-### 3. Label the images
+### 3. Crop the images
 Make sure the diretory only contains bmp files (also remove all backup hidden files)
 ```shell
 $ roscd data_pp
 $ cd src
-$ chmod +x label_images.py
-$ ./label_images.py
+$ chmod +x crop_images.py
+$ ./crop_images.py
 ```
 It will crop all original depth image into 34x34 image and shift the cropped image to 9 positions.
 
@@ -42,7 +43,7 @@ It will randomly add noises to the cropped images, which is to solve the problem
 {
 	'dataset': dataset,
 	'names': names,
-	'faces': faces,
+	'phases': phases,
 	'orientations': orientations
 }
 ```
