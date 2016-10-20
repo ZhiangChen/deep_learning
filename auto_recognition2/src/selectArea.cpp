@@ -145,22 +145,23 @@ int main(int argc, char** argv)
     		uc = Nu/2.0;
   			vc = Nv/2.0;
     		u = uc + focal_len*x/z;
-	        i = round(u)+2;
+	        i = round(u)+1;
 	        v = vc + focal_len*y/z;
 	        j = round(v)+1;
 
             bottom_right[0] = plane_centroid_wrt_plane[0] + box_x/2;
             bottom_right[1] = plane_centroid_wrt_plane[1] - box_y/2;
             bottom_right[2] = 0;
+            bottom_right = A_plane_wrt_camera*bottom_right;
             z = bottom_right[2];
             y = bottom_right[1];
             x = bottom_right[0];
             uc = Nu/2.0;
             vc = Nv/2.0;
             u = uc + focal_len*x/z;
-            i2 = round(u)+2;
+            i2 = round(u)-1;
             v = vc + focal_len*y/z;
-            j2 = round(v)+1;
+            j2 = round(v)-1;
 
     		// store parameters
     		string text;

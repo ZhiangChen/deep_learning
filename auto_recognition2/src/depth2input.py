@@ -36,7 +36,7 @@ class image_converter:
 
 	def callback(self,data):
 		cv_image = self.bridge.imgmsg_to_cv2(data, desired_encoding="mono8")
-		cropped_image = cv_image[lf_y:rt_y,lf_x:rt_x].reshape((image_size, image_size))
+		cropped_image = cv2.resize(cv_image[lf_y:rt_y,lf_x:rt_x],(image_size,image_size))
 		#cv2.imwrite('cropped_image.bmp',cropped_image)
 		ros_image = self.bridge.cv2_to_imgmsg(cropped_image, encoding="mono8")
 		self.pub.publish(ros_image)
