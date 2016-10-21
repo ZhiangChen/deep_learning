@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(get_box_points)
+project(orthaffine_projection)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
