@@ -4,7 +4,8 @@ import pcl
 import numpy as np
 from scipy.interpolate import griddata
 
-p = pcl.load('box_points.pcd')
+file_name = 'affined_box_points.pcd'
+p = pcl.load(file_name)
 points = p.to_array()
 xy = points[:,0:2]
 z = points[:,2]
