@@ -1,4 +1,4 @@
-# Data Pre-Process
+# Data Pre-Process (Perspetive Projection)
  
 ### 1. Create name list file
 Make sure the directory only contains pcd files (remove all backup hidden files)

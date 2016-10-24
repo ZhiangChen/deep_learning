@@ -159,10 +159,12 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 add_executable(get_box_points src/get_box_points.cpp)
+add_executable(get_box_points_from_files src/get_box_points_from_files.cpp)
+add_executable(select_area_from_file src/select_area_from_file.cpp)
 
- target_link_libraries(get_box_points
-   ${catkin_LIBRARIES}
- )
+target_link_libraries(get_box_points ${catkin_LIBRARIES})
+target_link_libraries(get_box_points_from_files ${catkin_LIBRARIES})
+target_link_libraries(select_area_from_file ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############

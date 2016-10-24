@@ -1,7 +1,10 @@
-
+/// get_box_points.cpp
+/// Zhiang Chen, Oct 2016
+/// get box points from the topic 'kinect2/qhd/points' published by kinect2(ROS kinect2 bridge) 
+/// save as  box_points.pcd
 /*
  * The MIT License (MIT)
- *  Copyright (c) 2016 Zhiang Chen, Wyatt Newman
+ *  Copyright (c) 2016 Zhiang Chen
  */
 
 #include <ros/ros.h> 
