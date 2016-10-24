@@ -147,7 +147,7 @@ int main(int argc, char** argv)
 
 		size_t lastindex = fname.find_last_of("."); 
 		string newname = fname.substr(0, lastindex); 
-		newname += ".bmp";
+		newname = "box_"+newname+".pcd";
     	pcl::io::savePCDFile(newname, *tf_box_ptr, true);
     	cout<<"Finished "<<std::fixed<<std::setprecision(1)<< double(ipic+1)/num*100 <<"%"<<endl;
 
