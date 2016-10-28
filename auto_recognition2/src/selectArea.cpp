@@ -33,6 +33,7 @@ void box_filter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  inputCloud, Eigen::Vecto
 #define focal_len 210.0
 #define Nv 200
 #define Nu 200
+#define image_size 100
 
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr g_kinect_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
 bool g_got_data = false;
@@ -191,7 +192,7 @@ int main(int argc, char** argv)
     		text += "tplf_y: " + boost::lexical_cast<std::string>(j) + "\n";
             text += "btrt_x: " + boost::lexical_cast<std::string>(i2) + "\n";
             text += "btrt_y: " + boost::lexical_cast<std::string>(j2) + "\n";
-            text += "image_size: 34";
+            text += "image_size: " + boost::lexical_cast<std::string>(image_size);
     		ofstream myfile;
     		myfile.open ("auto_recognition2.yaml");
     		myfile << text;

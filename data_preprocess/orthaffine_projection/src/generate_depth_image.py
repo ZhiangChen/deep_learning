@@ -4,17 +4,38 @@ import pcl
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from orthaffine import OrthAffine as OA
+import os
+from math import *
+from six.moves import cPickle as pickle
 
-file_name = 'my_box_points.pcd'
-p = pcl.load(file_name)
-points = p.to_array()
-z = points[:,2]
-z_mean = np.mean(z)
-z = z - z_mean
-z_max = np.amax(z)
-z_min = np.amin(z)
-z = z/(z_max-z_min)
-image = z.reshape((101,101))
-plt.imshow(image,cmap='Greys_r')
-plt.show()
+files = os.listdir('.')
+pcd_files = list()
+for f in files:
+	if (f.split('_')[0]=='box') & (f.split('.')[1]=='pcd'):
+		pcd_files.append(f)
 
+nm = len(pcd_files)
+print('There are %d files to be processed' % nm)
+theta = 30.0/180*pi 
+oa = OA(theta)
+images = dict()
+for f in pcd_files:
+	oa.readpcd(f)
+	oa.affine()
+	oa.interpolate(theta)
+	oa.project()
+	name = '-'.join(f.split('.')[0].split('_')[2:])+'.bmp'
+	images.setdefault(name,oa.image_numpy)
+
+wd = os.getcwd()
+data_file = wd + '/depth_data_numpy'
+with open(data_file,'wb') as f:
+	save={
+		'image': images
+	}
+	pickle.dump(save,f,pickle.HIGHEST_PROTOCOL)
+	f.close()
+statinfo = os.stat(data_file)
+file_size = float(statinfo.st_size)/1000
+print('Compressed data size: %0.1fkB' % file_size)
