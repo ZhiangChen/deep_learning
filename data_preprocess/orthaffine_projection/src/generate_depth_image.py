@@ -25,7 +25,7 @@ for f in pcd_files:
 	oa.affine()
 	oa.interpolate(theta)
 	oa.project()
-	name = '-'.join(f.split('.')[0].split('_')[2:])+'.bmp'
+	name = '-'.join(f.split('.')[0].split('_')[1:])+'.bmp'
 	images.setdefault(name,oa.image_numpy)
 
 wd = os.getcwd()
