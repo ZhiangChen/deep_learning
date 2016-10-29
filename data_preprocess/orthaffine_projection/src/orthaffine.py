@@ -13,6 +13,7 @@ import sys
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
 import matplotlib.pyplot as plt
+from cv_bridge import CvBridge, CvBridgeError
 
 class OrthAffine():
 	def __init__(self,theta):
@@ -29,6 +30,7 @@ class OrthAffine():
 		self.bmY = rospy.get_param("bmY")
 		self.bmZ = rospy.get_param("bmZ")
 		self.image_size = rospy.get_param("image_size")
+		self.bridge = CvBridge()
 		rospy.loginfo("Initialized!")
 
 	def readpcd(self,filename):
@@ -75,6 +77,12 @@ class OrthAffine():
 		plt.imshow(self.image_numpy,cmap='Greys_r', vmin=vmin, vmax=vmax)
 		plt.savefig(filename)
 
+	def publishimage(self):
+		image = ((self.image_numpy + 0.55)*255).astype(np.uint8)
+		ros_image = self.bridge.cv2_to_imgmsg(image, encoding="mono8")
+		self.pub2.publish(ros_image)
+		print(self.image_numpy.tolist()[0])
+
 	def callback(self,box_points):
 		generator = pc2.read_points(box_points, skip_nans=True, field_names=("x", "y", "z"))
 		pts = list()
@@ -85,7 +93,7 @@ class OrthAffine():
 		self.interpolate(self.theta)
 		self.project()
 		self.pub1.publish(self.image_numpy)
-		#self.saveimage('test.png')
+		self.publishimage()
 		sys.stdout.write(".")
 		sys.stdout.flush()
 
