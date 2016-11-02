@@ -7,6 +7,6 @@ _phase_objectname_
 _phase_objectname_orienation.pcd
 
 ### box pointcloud 
-box_phase_objectname_orientation.pcd#
+box_phase_objectname_orientation.pcd
 
 

@@ -12,8 +12,9 @@ from six.moves import cPickle as pickle
 files = os.listdir('.')
 pcd_files = list()
 for f in files:
-	if (f.split('_')[0]=='box') & (f.split('.')[1]=='pcd'):
-		pcd_files.append(f)
+	if f.startswith('box'):
+		if (f.split('_')[0]=='box') & (f.split('.')[1]=='pcd'):
+			pcd_files.append(f)
 
 nm = len(pcd_files)
 print('There are %d files to be processed' % nm)
@@ -25,8 +26,10 @@ for f in pcd_files:
 	oa.affine()
 	oa.interpolate(theta)
 	oa.project()
-	name = '-'.join(f.split('.')[0].split('_')[1:])+'.bmp'
+	name = '-'.join(f.split('.')[0].split('_')[1:])+'.png'
 	images.setdefault(name,oa.image_numpy)
+	#oa.saveimage(name)
+	#oa.savepcd('box.pcd')
 
 wd = os.getcwd()
 data_file = wd + '/depth_data_numpy'

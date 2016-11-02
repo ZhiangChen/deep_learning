@@ -45,7 +45,7 @@ float _cZ = 0.863329;
 // Box Filter Parameters
 float _bnX = -0.06;
 float _bnY = -0.11;
-float _bnZ = -0.015;
+float _bnZ = -0.02;
 float _bmX = 0.115;
 float _bmY = 0.08;
 float _bmZ = 0.1;
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
     	pcl::toROSMsg(*tf_box_ptr, ros_tf_box);
     	pcl::toROSMsg(*box_ptr, ros_box);
 
-    	while(ros::ok())
+    	//while(ros::ok())
     	{
     		ros_kinect.header.frame_id = "camera";
     		ros_tf_kinect.header.frame_id = "plane";
