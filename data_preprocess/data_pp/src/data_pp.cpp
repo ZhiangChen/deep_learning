@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     PclUtils pclUtils(&nh);
     loadParameters(nh);
-
+ 
 // publishers
     ros::Publisher pub_kinect = nh.advertise<sensor_msgs::PointCloud2> ("/kinect", 1);
     ros::Publisher pub_tf_kinect = nh.advertise<sensor_msgs::PointCloud2> ("/tf_kinect", 1);
