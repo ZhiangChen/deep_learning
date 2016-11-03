@@ -28,7 +28,7 @@ class Cropper():
 		indices = list()
 		images = list()
 		while len(images)<nm:
-			[x,y] = [np.random.randint(10,l) for l in [w,h]]
+			[x,y] = [np.random.randint(0,l) for l in [w,h]]
 			if [x,y] not in indices:
 				indices.append([x,y])
 				images.append(image_numpy[x:x+self.keep_size , y:y+self.keep_size])
