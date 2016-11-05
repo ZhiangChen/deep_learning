@@ -20,7 +20,7 @@ files = os.listdir(wd)
 images = list()
 for name in files:
 	debris = name.split('.')
-	if debris[-1] == 'pcd':
+	if (debris[-1] == 'pcd')&(not debris[0].startswith('box')):
 		images.append(name)
 
 file_name = wd+"/name_lists"

@@ -81,7 +81,7 @@ class OrthAffine():
 		plt.savefig(filename)
 
 	def publishimage(self):
-		image = ((self.image_numpy + 0.55)*255).astype(np.uint8)
+		image = ((self.image_numpy + 0.65)*255).astype(np.uint8)
 		ros_image = self.bridge.cv2_to_imgmsg(image, encoding="mono8")
 		self.pub2.publish(ros_image)
 
