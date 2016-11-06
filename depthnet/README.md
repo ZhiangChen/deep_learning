@@ -2,8 +2,10 @@
 ---
 Zhiang Chen, Nov 2016
 
-### [DepthNet](https://www.youtube.com/watch?v=qwG2HYK_bys)
+### DepthNet
 ![alt tag](./DepthNet.png)
+
+### [Video](https://www.youtube.com/watch?v=qwG2HYK_bys)
 
 ### Usage
 ```shell
