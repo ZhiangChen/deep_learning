@@ -1,7 +1,11 @@
 # DepthNet
+---
+Zhiang Chen, Nov 2016
 
+### DepthNet
 ![alt tag](./DepthNet.png)
-`
+
+`shell
 roslaunch kinect2_bridge kinect2_bridge.launch
 rosparam load ...
 rosrun depthnet box_points_pub
