@@ -3,6 +3,7 @@
 Zhiang Chen, Nov 2016
 
 ### DepthNet
+DepthNet is the deep neural network designed for 3D object recognition and orientation detection.
 ![alt tag](./DepthNet.png)
 
 ### Results
