@@ -8,9 +8,8 @@ Zhiang Chen, Nov 2016
 ### Results
 * [Video](https://www.youtube.com/watch?v=qwG2HYK_bys)
 * Images: the white bar is the predicted orientation that is the tangent direction of grasping.
-<img src="./calc.png" width="100">
-![alt tag](./calc.png =150x100)
-![alt tag](./duck.png =150x100)
+<img src="./calc.png" width="400">
+<img src="./duck.png" width="400">
 
 ### Usage
 ```shell
