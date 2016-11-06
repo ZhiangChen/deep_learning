@@ -1,7 +1,7 @@
 # auto recognition
 ---
 ## Description
-This is a ros package for 3D objects recognition. [video](https://www.youtube.com/watch?v=LHCvTDe7kZg)
+This is a ros package for 3D objects recognition. [*video*](https://www.youtube.com/watch?v=LHCvTDe7kZg)
 
 ## Dependencies
 - ROS Indigo
