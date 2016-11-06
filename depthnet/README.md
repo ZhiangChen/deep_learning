@@ -5,7 +5,11 @@ Zhiang Chen, Nov 2016
 ### DepthNet
 ![alt tag](./DepthNet.png)
 
-### [Video](https://www.youtube.com/watch?v=qwG2HYK_bys)
+### Results
+* [Video](https://www.youtube.com/watch?v=qwG2HYK_bys)
+* Images: the white bar is the predicted orientation that is the tangent direction of grasping.
+![alt tag](./calc.png)
+![alt tag](./duck.png)
 
 ### Usage
 ```shell
