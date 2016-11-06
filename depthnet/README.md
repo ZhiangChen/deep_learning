@@ -2,9 +2,10 @@
 ---
 Zhiang Chen, Nov 2016
 
-### DepthNet
+### [DepthNet](https://www.youtube.com/watch?v=qwG2HYK_bys)
 ![alt tag](./DepthNet.png)
 
+### Usage
 ```shell
 roslaunch kinect2_bridge kinect2_bridge.launch
 rosparam load ...
