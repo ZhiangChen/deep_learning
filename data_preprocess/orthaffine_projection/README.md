@@ -31,7 +31,7 @@ cropper.SaveRandomCropped also provides functions to randomly crop the depth ima
 ### [*python-pcl*](https://github.com/strawlab/python-pcl)
 Instruction for installing python-pcl:
 ```shell
-sudo install Cython
+sudo pip install Cython
 sudo python setup.py clean
 sudo make clean
 sudo make all
