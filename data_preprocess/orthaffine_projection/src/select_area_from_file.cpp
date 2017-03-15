@@ -25,15 +25,15 @@
 using namespace std;
 void box_filter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  inputCloud, Eigen::Vector3f pt_min, Eigen::Vector3f pt_max, vector<int> &indices);
 
-#define box_x 0.19
-#define box_y 0.19
+#define box_x 0.18
+#define box_y 0.18
 #define bnz -0.015 
 #define bmz 0.1
 #define h_proction 0.17
 #define focal_len 210.0
 #define Nv 200
 #define Nu 200
-#define image_size 100
+#define image_size 50
 
 int main(int argc, char** argv) 
 {

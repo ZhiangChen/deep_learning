@@ -1,6 +1,5 @@
 /// get_box_points_from_files.cpp
 /// Zhiang Chen, Oct 2016
-/// get box points from the topic 'kinect2/qhd/points' published by kinect2(ROS kinect2 bridge)
 /// save box points as pcd files
 
 /*
