@@ -19,3 +19,6 @@ images/pcd
 
 #Tensorflow
 **/*.ckpt.meta
+
+#Large files
+**/depth_data
