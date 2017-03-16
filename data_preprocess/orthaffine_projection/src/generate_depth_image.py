@@ -32,7 +32,7 @@ for theta_ in [25,30,35]:
 		name = prefix+'-'.join(f.split('.')[0].split('_')[1:])+'.png'
 		images.setdefault(name,oa.image_numpy)
 		#oa.savepcd('box.pcd')
-	oa.saveimage(name)
+	#oa.saveimage(name)
 	print(theta_)
 
 wd = os.getcwd()

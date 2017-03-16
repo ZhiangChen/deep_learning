@@ -142,7 +142,7 @@ with graph.as_default():
 config = tf.ConfigProto()
 #config.log_device_placement = True 
 session = tf.Session(graph=graph, config = config)
-saver.restore(session, "model2.ckpt")
+saver.restore(session, "model1.ckpt")
 
 def accuracy_classes(predictions, labels):
     return (100.0 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1))/ predictions.shape[0])
@@ -154,6 +154,7 @@ class evaluator:
         self.pub1  = rospy.Publisher('prediction',PredictionMSG,queue_size=1)
         self.sub1 = rospy.Subscriber('cropped_box_image/numpy',numpy_msg(Floats),self.callback,queue_size=1)
         self.pub2  = rospy.Publisher('cropped_box_image/image',Image, queue_size=1)
+        self.pub3 = rospy.Publisher('predicted_class', String, queue_size=1)
         self.bridge = CvBridge()
         self.pt1x = -40.0
         self.pt1y = 0.0
@@ -172,6 +173,8 @@ class evaluator:
             sorted_pre_dict = sorted(pre_dict.items(), key=operator.itemgetter(1))
             name1 = value2name[sorted_pre_dict[-1][0]]
             name1 = name2string[name1]
+            self.pub3.publish(name1)
+            #name1 = name2string[name1]
             value1 = str(sorted_pre_dict[-1][1])
             name2 = value2name[sorted_pre_dict[-2][0]]
             name2 = name2string[name2]
@@ -184,7 +187,7 @@ class evaluator:
             pt1y = int(self.pt1x * math.sin(math.radians(angle)) + self.pt1y * math.cos(math.radians(angle))) + 40
             pt2x = int(self.pt2x * math.cos(math.radians(angle)) + self.pt2y * -math.sin(math.radians(angle))) + 40
             pt2y = int(self.pt2x * math.sin(math.radians(angle)) + self.pt2y * math.cos(math.radians(angle))) + 40
-            cv2.line(image,(pt1x,pt1y),(pt2x,pt2y),255,2)
+            #cv2.line(image,(pt1x,pt1y),(pt2x,pt2y),255,2)
             ros_image = self.bridge.cv2_to_imgmsg(image, encoding="mono8")
             self.pub2.publish(ros_image)
             sys.stdout.write(".")
