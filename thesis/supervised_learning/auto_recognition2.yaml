@@ -1,0 +1,27 @@
+#Plane Parameters
+A: -0.0384943187
+B: 0.512462974
+C: 0.857846141
+D: -0.765900433
+cX: -0.122954167
+cY: -0.0364867002
+cZ: 0.910312355
+#Box Filter Parameters
+bnX: -0.090
+bnY: -0.090
+bnZ: -0.0149999997
+bmX: 0.0949999988
+bmY: 0.0949999988
+bmZ: 0.100000001
+#Projection Parameters
+Nv: 200
+Nu: 200
+focal_len: 210
+mDis: 1.004302761554718
+nDis: 0.83430276155471805
+#Cropped Image
+tplf_x: 53
+tplf_y: 75
+btrt_x: 92
+btrt_y: 110
+image_size: 50
