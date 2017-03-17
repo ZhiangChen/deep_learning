@@ -25,6 +25,12 @@ from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
 from depthnet.msg import PredictionMSG
 import math
+from six.moves import cPickle as pickle
+
+with open('small_data', 'rb') as f:
+    save = pickle.load(f)
+    small_data = save['small_data']
+    del save
 
 name2value = {'empty':0,'duck':1,'cup':2,'sponge':3,'tball':4,'pball':5,'gball':6,'gstick':7,'nerf':8,'calc':9,'stapler':10}
 value2name = dict((value,name) for name,value in name2value.items()) 
@@ -35,6 +41,9 @@ name2string = {'v8':'v8 can','duck':'ducky','stapler':'stapler','pball':'ping pa
             'orwidg':'orange thing','glue':'glue','spoon':'spoon','fork':'fork','nerf':'nerf gun','eraser':'eraser',
             'empty':'empty plate'}
 
+angles_list = np.asarray([i*18 for i in range(10)]).astype(np.float32)
+
+num_labels = 11
 image_size = 50
 '''ConvNet'''
 k1_size = 6
@@ -107,6 +116,9 @@ keep_prob2 = 0.5
 '''Mini-batch'''
 batch_size = 33
 angles_list = np.asarray([i*18 for i in range(10)]).astype(np.float32)
+
+def leaky_relu(x, leak=0.1):
+    return tf.maximum(x, x * leak)
 
 graph = tf.Graph()
 
@@ -247,7 +259,7 @@ with graph.as_default():
 config = tf.ConfigProto()
 #config.log_device_placement = True 
 session = tf.Session(graph=graph, config = config)
-saver.restore(session, "model.ckpt")
+saver.restore(session, "./model.ckpt")
 
 def accuracy_classes(predictions, labels):
     return (100.0 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1))/ predictions.shape[0])
@@ -258,7 +270,7 @@ class evaluator:
         #Initialize ros publisher, subscriber
         self.pub1  = rospy.Publisher('prediction',PredictionMSG,queue_size=1)
         self.sub1 = rospy.Subscriber('box_image/numpy',numpy_msg(Floats),self.callback,queue_size=1)
-        self.pub2  = rospy.Publisher('box_image/image',Image, queue_size=1)
+        self.pub2  = rospy.Publisher('p_box_image/image',Image, queue_size=1)
         self.pub3 = rospy.Publisher('predicted_class', String, queue_size=1)
         self.bridge = CvBridge()
         self.pt1x = -25.0
@@ -271,9 +283,10 @@ class evaluator:
         with session.as_default():
             assert tf.get_default_session() is session
             input_image = np.flipud(data.data.reshape(image_size,image_size).astype(np.float32)).reshape(-1,image_size,image_size,1)
-            out_class, out_angle = test_model(input_image)
+            images = np.append(input_image,small_data,axis=0)
+            out_class, out_angle = test_model(images)
             pre_class = tf.nn.softmax(out_class)
-            pre_angle = tf.nn.softmax(out_angle).eval()
+            pre_angle = tf.nn.softmax(out_angle).eval()[0]
             angle = np.sum(np.multiply(pre_angle, angles_list))/np.sum(pre_angle)
             pre_dict = dict(zip(list(range(num_labels)),pre_class.eval()[0]))
             sorted_pre_dict = sorted(pre_dict.items(), key=operator.itemgetter(1))
@@ -292,7 +305,7 @@ class evaluator:
             pt1y = int(self.pt1x * math.sin(math.radians(angle)) + self.pt1y * math.cos(math.radians(angle))) + 25
             pt2x = int(self.pt2x * math.cos(math.radians(angle)) + self.pt2y * -math.sin(math.radians(angle))) + 25
             pt2y = int(self.pt2x * math.sin(math.radians(angle)) + self.pt2y * math.cos(math.radians(angle))) + 25
-            cv2.line(image,(pt1x,pt1y),(pt2x,pt2y),255,2)
+            cv2.line(image,(pt1x,pt1y),(pt2x,pt2y),150,1)
             ros_image = self.bridge.cv2_to_imgmsg(image, encoding="mono8")
             self.pub2.publish(ros_image)
             sys.stdout.write(".")
