@@ -46,9 +46,11 @@ int main(int argc, char** argv)
     ros::Publisher pub_tf_kinect = nh.advertise<sensor_msgs::PointCloud2> ("/tf_kinect", 1);
     ros::Publisher pub_tf_box = nh.advertise<sensor_msgs::PointCloud2> ("/tf_box", 1);
     ros::Publisher pub_box = nh.advertise<sensor_msgs::PointCloud2> ("/box", 1);
+	ros::Publisher pub_tf_patch = nh.advertise<sensor_msgs::PointCloud2> ("/tf_patch", 1);
 
 // pcl pointcloud    
     pcl::PointCloud<pcl::PointXYZ>::Ptr selected_ptr(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr tf_selected_ptr(new pcl::PointCloud<pcl::PointXYZ>);
     int selected_nm;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr kinect_ptr(new pcl::PointCloud<pcl::PointXYZRGB>); // pointer to the pointcloud wrt kinect coords
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr tf_kinect_ptr(new pcl::PointCloud<pcl::PointXYZRGB>); // pointer to the pointcloud wrt plate coords
@@ -56,7 +58,7 @@ int main(int argc, char** argv)
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr box_ptr(new pcl::PointCloud<pcl::PointXYZRGB>); // pointer to the interesting points (in the box) wrt camera coords
 
 // sensor msg pointcloud
-    sensor_msgs::PointCloud2 ros_kinect, ros_box, ros_tf_kinect, ros_tf_box, ros_tf_ds, ros_tf_ds_box; 
+    sensor_msgs::PointCloud2 ros_kinect, ros_box, ros_tf_kinect, ros_tf_box, ros_tf_patch; 
 
 // parameters
     float curvature;
@@ -75,6 +77,8 @@ int main(int argc, char** argv)
     double u,v,uc,vc;
     double x,y,z;
     int i,j,i2,j2;
+    Eigen::Vector3f pt;
+    double xl=0,xr=0,yu=0,yd=0;
 
     cout<<"enter pcd file name: ";
     string fname;
@@ -120,6 +124,16 @@ int main(int argc, char** argv)
     		plane_centroid4[3] = 1.0;
     		A_plane_wrt_camera = pclUtils.make_affine_from_plane_params(plane_parameters,plane_centroid);
     		pcl::transformPointCloud(*kinect_ptr, *tf_kinect_ptr, A_plane_wrt_camera.inverse());
+            pcl::transformPointCloud(*selected_ptr, *tf_selected_ptr, A_plane_wrt_camera.inverse());
+            selected_nm = tf_selected_ptr -> points.size();
+            for (int id=0; id < selected_nm; id++)
+            {
+                pt = tf_selected_ptr -> points[id].getVector3fMap();
+                if (pt[0]<xl) xl = pt[0];
+                if (pt[0]>xr) xr = pt[0];
+                if (pt[1]>yu) yu = pt[1];
+                if (pt[1]<yd) yd = pt[1];
+            }
     		plane_centroid_wrt_plane = A_plane_wrt_camera.inverse()*plane_centroid4;
     		boxn[0] = plane_centroid_wrt_plane[0] - box_x/2;
     		boxn[1] = plane_centroid_wrt_plane[1] - box_y/2;
@@ -183,6 +197,11 @@ int main(int argc, char** argv)
     		text += "focal_len: " + boost::lexical_cast<std::string>(focal_len) + "\n";
     		text += "mDis: " + boost::lexical_cast<std::string>(mDis) + "\n";
     		text += "nDis: " + boost::lexical_cast<std::string>(nDis) + "\n";
+            text += "#Patch size\n";
+            text += "xl: " + boost::lexical_cast<std::string>(xl) + "\n";
+            text += "xr: " + boost::lexical_cast<std::string>(xr) + "\n";
+            text += "yu: " + boost::lexical_cast<std::string>(yu) + "\n";
+            text += "yd: " + boost::lexical_cast<std::string>(yd) + "\n";
     		text += "#Cropped Image\n";
     		text += "tplf_x: " + boost::lexical_cast<std::string>(i) + "\n";
     		text += "tplf_y: " + boost::lexical_cast<std::string>(j) + "\n";
@@ -204,16 +223,20 @@ int main(int argc, char** argv)
 	    	//pcl::toROSMsg(*kinect_ptr, ros_kinect);
 	    	pcl::toROSMsg(*tf_box_ptr, ros_tf_box);
 	    	pcl::toROSMsg(*box_ptr, ros_box);
+			pcl::toROSMsg(*tf_selected_ptr, ros_tf_patch);
+			
 
 			//ros_kinect.header.frame_id = "camera";
 			ros_tf_kinect.header.frame_id = "plane";
 			ros_tf_box.header.frame_id = "plane";
 			ros_box.header.frame_id = "camera";
+			ros_tf_patch.header.frame_id = "plane";
 			
 			pub_kinect.publish(ros_kinect);
 			pub_tf_kinect.publish(ros_tf_kinect);
 			pub_tf_box.publish(ros_tf_box);
 			pub_box.publish(ros_box);
+			pub_tf_patch.publish(ros_tf_patch);
 			//ros::Duration(0.5).sleep();
     	}
     	pcl::toROSMsg(*kinect_ptr, ros_kinect);
