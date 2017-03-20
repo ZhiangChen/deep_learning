@@ -1,4 +1,4 @@
-`
+```
 cd ~/catkin_ws/src/deep_learning/thesis/supervised_learning
 roslaunch kinect2_bridge kinect2_bridge.launch
 rosrun rviz rviz
@@ -8,4 +8,4 @@ rosrun orthaffine_projection orthaffine.py
 python evaluator.py
 rostopic echo prediction
 rviz: add image by topic 'p_box_image/image'
-`
+```
