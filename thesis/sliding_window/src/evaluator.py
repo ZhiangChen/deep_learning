@@ -263,8 +263,11 @@ saver.restore(session, "./model.ckpt")
 
 def accuracy_classes(predictions, labels):
     return (100.0 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1))/ predictions.shape[0])
-
-
+'''
+from evaluator import *
+ev = evaluator()
+c,s,a = ev.evaluate(small_data)
+'''
 class evaluator:
     def __init__(self):
         #Initialize ros publisher, subscriber
@@ -278,6 +281,22 @@ class evaluator:
         self.pt2x = 25.0
         self.pt2y = 0.0
         rospy.loginfo("Initialized!")
+
+    def evaluate(self,images):
+        'images has numpy.ndarray type; images.shape=[-1,image_size,image_size,1]; the elements have np.float32 type' 
+        with session.as_default():
+            out_class, out_angle = test_model(images)
+            pre_class, pre_angle = tf.nn.softmax(out_class).eval(), tf.nn.softmax(out_angle).eval()
+            angles = np.sum(np.multiply(pre_angle, angles_list),axis=1)/np.sum(pre_angle,axis=1)
+            classes = np.argmax(pre_class, axis=1)+0.1
+            #print(classes)
+            #classes = [value2name[value] for value in classes]
+            #print(classes)
+            #classes = [name2string[name] for name in classes]
+            scores = np.amax(pre_class,axis=1)
+            return classes.reshape(-1,1), scores.reshape(-1,1), angles.reshape(-1,1)
+
+
 
     def callback(self,data):
         with session.as_default():
@@ -314,10 +333,9 @@ class evaluator:
 if __name__ == '__main__':
     rospy.init_node('multitask',anonymous=True)
     ev = evaluator()
-try:
-    rospy.spin()
-except KeyboardInterrupt:
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down ROS node evaluate_image")
+    session.close()
     print("Shutting down ROS node evaluate_image")
-
-session.close()
-print("Shutting down ROS node evaluate_image")

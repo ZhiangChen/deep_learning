@@ -105,8 +105,8 @@ int main(int argc, char** argv)
     vector<int> indices; // indices of interesting pixels
     // parameters for box filter wrt plane coords
     Eigen::Vector3f box_pt_min,box_pt_max;
-    box_pt_min<<_xl,_yd,_bnZ;
-    box_pt_max<<_xr,_yu,_bmZ;
+    box_pt_min<<(_xl+_bnX), (_yd+_bnY), _bnZ;
+    box_pt_max<<(_xr+bmX), (_yu+bmX), _bmZ;
     int point_nm;
 
     while(ros::ok())

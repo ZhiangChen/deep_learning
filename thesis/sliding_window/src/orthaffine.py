@@ -41,6 +41,9 @@ class OrthAffine():
 			self.points = self.p.to_array()
 			return True
 
+	def readpoints(self,points):
+		self.points = points.copy()
+
 	def affine(self):
 		yz = self.points[:,1:3]
 		new_y = np.dot(yz,np.transpose(self.R))[:,0]
