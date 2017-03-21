@@ -64,7 +64,7 @@ void kinectCallback(const sensor_msgs::PointCloud2ConstPtr &cloud)
 
 int main(int argc, char** argv) 
 {
-    ros::init(argc, argv, "patch publisher"); //node name
+    ros::init(argc, argv, "patch_publisher"); //node name
     ros::NodeHandle nh;
     PclUtils pclUtils(&nh);
     while(!loadParameters(nh))
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
     // parameters for box filter wrt plane coords
     Eigen::Vector3f box_pt_min,box_pt_max;
     box_pt_min<<(_xl+_bnX), (_yd+_bnY), _bnZ;
-    box_pt_max<<(_xr+bmX), (_yu+bmX), _bmZ;
+    box_pt_max<<(_xr+_bmX), (_yu+_bmY), _bmZ;
     int point_nm;
 
     while(ros::ok())

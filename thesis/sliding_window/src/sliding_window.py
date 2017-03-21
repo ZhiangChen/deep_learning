@@ -32,13 +32,12 @@ from math import *
 theta = 30.0/180*pi
 x_step = 0.005
 y_step = 0.005
-radius = 0.015
 
 class SlidingWindow():
 	def __init__(self):
 		self.sub1 = rospy.Subscriber('/tf_patch', PointCloud2, self.callback, queue_size=1)
-		self.pub1 = rospy.Publisher('Objects', MarkerArray, queue_size=1)
-		self.pub2 = rospy.Publisher('Orientations', MarkerArray, queue_size=1)
+		self.pub1 = rospy.Publisher('objects', MarkerArray, queue_size=1)
+		self.pub2 = rospy.Publisher('orientations', MarkerArray, queue_size=1)
 		self.xl = rospy.get_param('xl')
 		self.xr = rospy.get_param('xr')
 		self.yu = rospy.get_param('yu')
@@ -53,7 +52,8 @@ class SlidingWindow():
 		self.centers = self.get_box_centers()
 		self.oa = OA(theta)
 		self.ev = evaluator()
-		rospy.loginfo("Initialized!")
+		rospy.loginfo("Sliding Window Initialized!")
+		self.i=0;
 
 	def get_box_centers(self):
 		x_centers = np.arange(self.xl, self.xr, x_step)
@@ -69,23 +69,35 @@ class SlidingWindow():
 		xr = center[0] + self.bmX
 		yu = center[1] + self.bmY
 		yd = center[1] + self.bnY
+		#print('center',xl,xr,yu,yd)
 		# filter
-		box = patch_points[(patch_points[:,0]>xl) & (patch_points[:,0]<xr) & (patch_points[:,1]<yu) & (patch_points[:,1]>yd)]
-		return box
+		box = self.patch_points[(self.patch_points[:,0]>xl) & (self.patch_points[:,0]<xr) \
+		& (self.patch_points[:,1]<yu) & (self.patch_points[:,1]>yd)\
+		& (self.patch_points[:,2]>self.bnZ) & (self.patch_points[:,2]<self.bmZ)]
+		#print('box shape',box.shape)
+		image = self.get_image(box, center)
+		return image
 
-	def get_image(self, box):
-		box = np.asarray(box)
+	def get_image(self, box, center):
+		xl = center[0] + self.bnX
+		xr = center[0] + self.bmX
+		yu = center[1] + self.bmY
+		yd = center[1] + self.bnY		
 		self.oa.readpoints(box)
 		self.oa.affine()
-		self.oa.interpolate(theta)
+		self.oa.interpolate(theta,bnX=xl,bmX=xr,bnY=yd,bmY=yu)
 		image_array = self.oa.project()
+		#self.i = self.i+1
+		#self.oa.saveimage(str(self.i)+'.png')
 		return image_array
 
-	def single_object_filter(self,score=0.8):
+	def single_object_filter(self,score=0.80):
 		# remove empty plate
 		self.results = self.results[self.results[:,1]>0.5]
+		#print(self.results.shape)
 		# remove low scores
 		self.results = self.results[self.results[:,0]>score]
+		#print(self.results.shape)
 		objects = self.results[:,1].tolist()
 		objects = [int(obj) for obj in objects]
 		objects = set(objects) # remove the duplicates in the list
@@ -95,24 +107,59 @@ class SlidingWindow():
 		for obj in objects:
 			pts = self.results[(self.results[:,1]>obj) & (self.results[:,1]<(obj+0.5))]
 			centers = pts[:,3:5]
+			centers = np.repeat(centers,2,axis=0)
+			#print('centers',centers)
+			#print(centers.shape)
 			center = np.mean(centers,axis=1)
+			#print('center',center)
 			angles = pts[:,2]
+			#print(angles)
 			angle = np.mean(angles)
 			ct.append(center)
 			agl.append(angle)
 			clas.append(obj)
-		return ct, agl, clas
+		return np.asarray(ct), agl, clas
+
+	def callback(self, patch_points):
+		generator = pc2.read_points(patch_points, skip_nans=True, field_names=("x", "y", "z"))
+		pts = list()
+		for i in generator:
+			pts.append(i)
+		self.patch_points = np.asarray(pts)
+		centers = self.centers.tolist()
+		#print(centers)
+		rospy.loginfo("The number of centers: %d" % len(centers))
+		images = [self.box_filter(center) for center in centers]
+		images = np.asarray(images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
+		"ADD SMALL DATA"
+		nm_images = images.shape[0]
+		images = np.concatenate((images,small_data),axis=0)
+		classes, scores, angles = self.ev.evaluate(images)
+		classes = classes[:nm_images,:]
+		scores = scores[:nm_images,:]
+		angles = angles[:nm_images,:]
+		classes_ = [value2name[int(value[0])] for value in classes.tolist()]
+		classes_ = [name2string[name] for name in classes_]
+		print(classes_)
+		print(scores)
+		self.results = np.concatenate((scores,classes,angles,self.centers[:,0].reshape(-1,1),self.centers[:,1].reshape(-1,1)),axis=1)
+		centers, angles, objects = self.single_object_filter()
+		if len(objects)!=0:
+			print('classes:', name2string[value2name[objects[0]]])
+			self.publish_classes(objects,centers)
+			self.publish_angles(angles,centers)
+
 
 	def publish_classes(self, classes, centers):
 		markerArray = MarkerArray()
 		for index, clas in enumerate(classes):
-			maker = Marker()
+			marker = Marker()
 			marker.header.frame_id = 'plane'
-			maker.type = marker.TEXT_VIEW_FACING
-			maker.action = marker.ADD
-			marker.scale.x = 0.2
-			marker.scale.y = 0.2
-			marker.scale.z = 0.2
+			marker.type = Marker.TEXT_VIEW_FACING
+			marker.action = marker.ADD
+			marker.scale.x = 0.05
+			marker.scale.y = 0.05
+			marker.scale.z = 0.05
 			marker.color.a = 1.0
 			marker.color.r = 1.0
 			marker.color.g = 1.0
@@ -128,46 +175,27 @@ class SlidingWindow():
 	def publish_angles(self, angles, centers):
 		markerArray = MarkerArray()
 		for index, angle in enumerate(angles):
-			maker = Marker()
+			marker = Marker()
 			marker.header.frame_id = 'plane'
-			maker.type = marker.ARROW
-			maker.action = marker.ADD
-			marker.scale.x = 0.2
-			marker.scale.y = 0.2
-			marker.scale.z = 0.2
+			marker.type = marker.TEXT_VIEW_FACING
+			marker.action = marker.ADD
+			marker.scale.x = 0.05
+			marker.scale.y = 0.05
+			marker.scale.z = 0.05
 			marker.color.a = 1.0
 			marker.color.r = 1.0
-			marker.color.g = 1.0
+			marker.color.g = 0.0
 			marker.color.b = 0.0
-			angle = radians(angle)
-			marker.pose.orientation.w = cos(angle/2.0)
-			marker.pose.orientation.z = sin(angle/2.0)
+			marker.pose.orientation.w = 1.0
 			marker.pose.position.x = centers[index,0]
 			marker.pose.position.y = centers[index,1]
-			marker.pose.position.z = self.bmZ
-			marker.text = 'angle: ' + str(degrees(angle))
+			marker.pose.position.z = self.bmZ 
+			marker.text = 'angle: '+str(angles[index])
 			markerArray.markers.append(marker)
-		self.pub1.publish(markerArray)
-
-
-	def callback(self, patch_points):
-		generator = pc2.read_points(patch_points, skip_nans=True, field_names=("x", "y", "z"))
-		pts = list()
-		for i in generator:
-			pts.append(i)
-		self.patch_points = np.asarray(pts)
-		centers = self.centers.tolist()
-		boxes = [self.box_filter(center) for center in centers]
-		images = [self.get_image(box) for box in boxes]
-		images = np.asarray(images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
-		classes, scores, angles = ev.evaluate(images)
-		self.results = np.concatenate((scores,classes,angles,self.centers[:,0].reshape(-1,1),self.centers[:,1].reshape(-1,1)),axis=1)
-		centers, angles, objects = self.single_object_filter()
-		self.publish_classes(objects,centers)
-		self.publish_angles(angles,centers)
+		self.pub2.publish(markerArray)
 
 if __name__ == '__main__':
-    rospy.init_node('sliding window',anonymous=True)
+    rospy.init_node('sliding_window',anonymous=True)
     sw = SlidingWindow()
     try:
         rospy.spin()

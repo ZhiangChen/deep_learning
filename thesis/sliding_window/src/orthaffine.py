@@ -31,7 +31,7 @@ class OrthAffine():
 		self.bmZ = rospy.get_param("bmZ")
 		self.image_size = rospy.get_param("image_size")
 		self.bridge = CvBridge()
-		rospy.loginfo("Initialized!")
+		rospy.loginfo("Orthaffine Initialized!")
 
 	def readpcd(self,filename):
 		if filename.split('.')[1] != 'pcd':
@@ -42,7 +42,7 @@ class OrthAffine():
 			return True
 
 	def readpoints(self,points):
-		self.points = points.copy()
+		self.points = points
 
 	def affine(self):
 		yz = self.points[:,1:3]
@@ -57,6 +57,22 @@ class OrthAffine():
 		grid_x = np.asarray([self.bnX+x_step_size*i for i in range(self.image_size)]).reshape((-1,1))
 		grid_x = np.repeat(grid_x,self.image_size,axis=1)
 		grid_y = np.asarray([self.bnY*cos(theta)+y_step_size*i for i in range(self.image_size)]).reshape((-1,1))
+		grid_y = np.repeat(grid_y,self.image_size,axis=1).transpose()
+		grid_z = griddata(xy,z,(grid_x,grid_y),method='nearest',fill_value=0.0)
+		new_points = np.asarray([grid_x,grid_y,grid_z]).transpose().reshape((-1,3)).astype(np.float32)
+		#print(new_points.transpose().shape)
+		#new_points = np.swapaxes(new_points,0,2).reshape((-1,3)).astype(np.float32)
+		#print(new_points.shape)
+		self.points = new_points.copy()
+
+	def interpolate(self,theta,bnX,bmX,bnY,bmY):
+		xy = self.points[:,0:2]
+		z = self.points[:,2]
+		x_step_size = (bmX - bnX)/self.image_size
+		y_step_size = (bmY - bnY)/self.image_size*cos(theta)
+		grid_x = np.asarray([bnX+x_step_size*i for i in range(self.image_size)]).reshape((-1,1))
+		grid_x = np.repeat(grid_x,self.image_size,axis=1)
+		grid_y = np.asarray([bnY*cos(theta)+y_step_size*i for i in range(self.image_size)]).reshape((-1,1))
 		grid_y = np.repeat(grid_y,self.image_size,axis=1).transpose()
 		grid_z = griddata(xy,z,(grid_x,grid_y),method='nearest',fill_value=0.0)
 		new_points = np.asarray([grid_x,grid_y,grid_z]).transpose().reshape((-1,3)).astype(np.float32)

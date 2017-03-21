@@ -280,7 +280,7 @@ class evaluator:
         self.pt1y = 0.0
         self.pt2x = 25.0
         self.pt2y = 0.0
-        rospy.loginfo("Initialized!")
+        rospy.loginfo("Evaluator Initialized!")
 
     def evaluate(self,images):
         'images has numpy.ndarray type; images.shape=[-1,image_size,image_size,1]; the elements have np.float32 type' 
