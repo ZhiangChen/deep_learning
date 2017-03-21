@@ -22,7 +22,8 @@ import rospy
 import roslib
 from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
-from visualization_msgs.msg import MarkerArray
+from geometry_msgs.msg import PoseArray
+from geometry_msgs.msg import Pose
 from visualization_msgs.msg import Marker
 from orthaffine import OrthAffine as OA
 from evaluator import *
@@ -36,8 +37,18 @@ y_step = 0.005
 class SlidingWindow():
 	def __init__(self):
 		self.sub1 = rospy.Subscriber('/tf_patch', PointCloud2, self.callback, queue_size=1)
-		self.pub1 = rospy.Publisher('objects', MarkerArray, queue_size=1)
-		self.pub2 = rospy.Publisher('orientations', MarkerArray, queue_size=1)
+		self.pub1 = rospy.Publisher('duck', Marker, queue_size=1)
+		self.pub2 = rospy.Publisher('cup', Marker, queue_size=1)
+		self.pub3 = rospy.Publisher('sponge', Marker, queue_size=1)
+		self.pub4 = rospy.Publisher('tball', Marker, queue_size=1)
+		self.pub5 = rospy.Publisher('pball', Marker, queue_size=1)
+		self.pub6 = rospy.Publisher('gball', Marker, queue_size=1)
+		self.pub7 = rospy.Publisher('gstick', Marker, queue_size=1)
+		self.pub8 = rospy.Publisher('nerf', Marker, queue_size=1)
+		self.pub9 = rospy.Publisher('calc', Marker, queue_size=1)
+		self.pub10 = rospy.Publisher('stapler', Marker, queue_size=1)
+		self.publishers = [self.pub1, self.pub2, self.pub3, self.pub4, self.pub5, self.pub6, self.pub7, self.pub8, self.pub9, self.pub10]
+		#self.pub_ori = rospy.Publisher('orientations', PoseArray, queue_size=1)
 		self.xl = rospy.get_param('xl')
 		self.xr = rospy.get_param('xr')
 		self.yu = rospy.get_param('yu')
@@ -53,7 +64,6 @@ class SlidingWindow():
 		self.oa = OA(theta)
 		self.ev = evaluator()
 		rospy.loginfo("Sliding Window Initialized!")
-		self.i=0;
 
 	def get_box_centers(self):
 		x_centers = np.arange(self.xl, self.xr, x_step)
@@ -87,11 +97,11 @@ class SlidingWindow():
 		self.oa.affine()
 		self.oa.interpolate(theta,bnX=xl,bmX=xr,bnY=yd,bmY=yu)
 		image_array = self.oa.project()
-		#self.i = self.i+1
-		#self.oa.saveimage(str(self.i)+'.png')
+		self.i = self.i+1
+		self.oa.saveimage(str(self.i)+'.png')
 		return image_array
 
-	def single_object_filter(self,score=0.80):
+	def single_object_filter(self,score=0.85):
 		# remove empty plate
 		self.results = self.results[self.results[:,1]>0.5]
 		#print(self.results.shape)
@@ -110,14 +120,16 @@ class SlidingWindow():
 			centers = np.repeat(centers,2,axis=0)
 			#print('centers',centers)
 			#print(centers.shape)
-			center = np.mean(centers,axis=1)
+			center = np.mean(centers,axis=0)
 			#print('center',center)
+			#print(center.shape)
 			angles = pts[:,2]
 			#print(angles)
 			angle = np.mean(angles)
 			ct.append(center)
 			agl.append(angle)
 			clas.append(obj)
+			self.publish_predictions(obj, angle, center)
 		return np.asarray(ct), agl, clas
 
 	def callback(self, patch_points):
@@ -129,6 +141,7 @@ class SlidingWindow():
 		centers = self.centers.tolist()
 		#print(centers)
 		rospy.loginfo("The number of centers: %d" % len(centers))
+		self.i=0
 		images = [self.box_filter(center) for center in centers]
 		images = np.asarray(images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
 		"ADD SMALL DATA"
@@ -138,61 +151,36 @@ class SlidingWindow():
 		classes = classes[:nm_images,:]
 		scores = scores[:nm_images,:]
 		angles = angles[:nm_images,:]
-		classes_ = [value2name[int(value[0])] for value in classes.tolist()]
-		classes_ = [name2string[name] for name in classes_]
-		print(classes_)
-		print(scores)
+		#classes_ = [value2name[int(value[0])] for value in classes.tolist()]
+		#classes_ = [name2string[name] for name in classes_]
+		#print(classes_)
+		#print(scores)
 		self.results = np.concatenate((scores,classes,angles,self.centers[:,0].reshape(-1,1),self.centers[:,1].reshape(-1,1)),axis=1)
 		centers, angles, objects = self.single_object_filter()
-		if len(objects)!=0:
-			print('classes:', name2string[value2name[objects[0]]])
-			self.publish_classes(objects,centers)
-			self.publish_angles(angles,centers)
+		print('There are %d objects' % len(objects))
 
 
-	def publish_classes(self, classes, centers):
-		markerArray = MarkerArray()
-		for index, clas in enumerate(classes):
-			marker = Marker()
-			marker.header.frame_id = 'plane'
-			marker.type = Marker.TEXT_VIEW_FACING
-			marker.action = marker.ADD
-			marker.scale.x = 0.05
-			marker.scale.y = 0.05
-			marker.scale.z = 0.05
-			marker.color.a = 1.0
-			marker.color.r = 1.0
-			marker.color.g = 1.0
-			marker.color.b = 0.0
-			marker.pose.orientation.w = 1.0
-			marker.pose.position.x = centers[index,0]
-			marker.pose.position.y = centers[index,1]
-			marker.pose.position.z = self.bmZ + 0.05
-			marker.text = name2string[value2name[clas]]
-			markerArray.markers.append(marker)
-		self.pub1.publish(markerArray)
-
-	def publish_angles(self, angles, centers):
-		markerArray = MarkerArray()
-		for index, angle in enumerate(angles):
-			marker = Marker()
-			marker.header.frame_id = 'plane'
-			marker.type = marker.TEXT_VIEW_FACING
-			marker.action = marker.ADD
-			marker.scale.x = 0.05
-			marker.scale.y = 0.05
-			marker.scale.z = 0.05
-			marker.color.a = 1.0
-			marker.color.r = 1.0
-			marker.color.g = 0.0
-			marker.color.b = 0.0
-			marker.pose.orientation.w = 1.0
-			marker.pose.position.x = centers[index,0]
-			marker.pose.position.y = centers[index,1]
-			marker.pose.position.z = self.bmZ 
-			marker.text = 'angle: '+str(angles[index])
-			markerArray.markers.append(marker)
-		self.pub2.publish(markerArray)
+	def publish_predictions(self, clas, angle, center):
+		marker = Marker()
+		marker.header.frame_id = 'plane'
+		marker.type = Marker.TEXT_VIEW_FACING
+		marker.action = marker.ADD
+		marker.scale.x = 0.01
+		marker.scale.y = 0.01
+		marker.scale.z = 0.01
+		marker.color.a = 1.0
+		marker.color.r = 1.0
+		marker.color.g = 1.0
+		marker.color.b = 0.0
+		marker.pose.orientation.w = 1.0
+		marker.pose.position.x = center[0]
+		marker.pose.position.y = center[1]
+		marker.pose.position.z = self.bmZ - 0.05
+		marker.text = name2string[value2name[clas]] + '\n' + 'angle: ' + str(angle)
+		print(name2string[value2name[clas]])
+		marker.lifetime.secs = 3
+		self.publishers[clas-1].publish(marker)
+		
 
 if __name__ == '__main__':
     rospy.init_node('sliding_window',anonymous=True)

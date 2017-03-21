@@ -19,6 +19,11 @@ Nu: 200
 focal_len: 210
 mDis: 1.004302761554718
 nDis: 0.83430276155471805
+#Patch size
+xl: -0.02
+xr: 0.02
+yu: 0.04
+yd: -0.04
 #Cropped Image
 tplf_x: 53
 tplf_y: 75
