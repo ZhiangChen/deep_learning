@@ -33,6 +33,7 @@ from math import *
 theta = 30.0/180*pi
 x_step = 0.005
 y_step = 0.005
+SAVEIMAGE = False
 
 class SlidingWindow():
 	def __init__(self):
@@ -97,11 +98,11 @@ class SlidingWindow():
 		self.oa.affine()
 		self.oa.interpolate(theta,bnX=xl,bmX=xr,bnY=yd,bmY=yu)
 		image_array = self.oa.project()
-		self.i = self.i+1
-		self.oa.saveimage(str(self.i)+'.png')
+		#self.i = self.i+1
+		#self.oa.saveimage(str(self.i)+'.png')
 		return image_array
 
-	def single_object_filter(self,score=0.85):
+	def single_object_filter(self,score=0.9):
 		# remove empty plate
 		self.results = self.results[self.results[:,1]>0.5]
 		#print(self.results.shape)
@@ -116,20 +117,26 @@ class SlidingWindow():
 		clas = list()
 		for obj in objects:
 			pts = self.results[(self.results[:,1]>obj) & (self.results[:,1]<(obj+0.5))]
-			centers = pts[:,3:5]
-			centers = np.repeat(centers,2,axis=0)
-			#print('centers',centers)
-			#print(centers.shape)
-			center = np.mean(centers,axis=0)
-			#print('center',center)
-			#print(center.shape)
-			angles = pts[:,2]
-			#print(angles)
-			angle = np.mean(angles)
-			ct.append(center)
-			agl.append(angle)
-			clas.append(obj)
-			self.publish_predictions(obj, angle, center)
+			if pts.shape[0] > 1:
+				centers = pts[:,3:5]
+				#centers = np.repeat(centers,2,axis=0)
+				#print('centers',centers)
+				#print(centers.shape)
+				v = np.var(centers,axis=0)
+				print 'variance: ',v
+				print 'points number: ',pts.shape[0]
+				if SAVEIMAGE == True:
+					self.saveimage(int(pts[0,5]),name2string[value2name[obj]]+'.png')
+				center = np.mean(centers,axis=0)
+				#print('center',center)
+				#print(center.shape)
+				angles = pts[:,2]
+				#print(angles)
+				angle = np.mean(angles)
+				ct.append(center)
+				agl.append(angle)
+				clas.append(obj)
+				self.publish_predictions(obj, angle, center)
 		return np.asarray(ct), agl, clas
 
 	def callback(self, patch_points):
@@ -142,8 +149,8 @@ class SlidingWindow():
 		#print(centers)
 		rospy.loginfo("The number of centers: %d" % len(centers))
 		self.i=0
-		images = [self.box_filter(center) for center in centers]
-		images = np.asarray(images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
+		self.images = [self.box_filter(center) for center in centers]
+		images = np.asarray(self.images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
 		"ADD SMALL DATA"
 		nm_images = images.shape[0]
 		images = np.concatenate((images,small_data),axis=0)
@@ -155,7 +162,7 @@ class SlidingWindow():
 		#classes_ = [name2string[name] for name in classes_]
 		#print(classes_)
 		#print(scores)
-		self.results = np.concatenate((scores,classes,angles,self.centers[:,0].reshape(-1,1),self.centers[:,1].reshape(-1,1)),axis=1)
+		self.results = np.concatenate((scores,classes,angles,self.centers[:,0].reshape(-1,1),self.centers[:,1].reshape(-1,1),np.arange(nm_images).reshape(-1,1)),axis=1)
 		centers, angles, objects = self.single_object_filter()
 		print('There are %d objects' % len(objects))
 
@@ -178,8 +185,19 @@ class SlidingWindow():
 		marker.pose.position.z = self.bmZ - 0.05
 		marker.text = name2string[value2name[clas]] + '\n' + 'angle: ' + str(angle)
 		print(name2string[value2name[clas]])
-		marker.lifetime.secs = 3
+		print('*'*40)
+		marker.lifetime.secs = 4
 		self.publishers[clas-1].publish(marker)
+
+	def saveimage(self,index,name):
+		z_mean = (self.bmZ - self.bnZ)/2.0
+		vmin = (self.bnZ - z_mean)/(self.bmZ - self.bnZ)
+		vmax = (self.bmZ - z_mean)/(self.bmZ - self.bnZ)
+		image_numpy = self.images[index]
+		image_numpy = np.flipud(image_numpy.reshape(self.image_size,self.image_size))
+		plt.imshow(image_numpy,cmap='Greys_r', vmin=vmin, vmax=vmax)
+		plt.savefig(name)
+
 		
 
 if __name__ == '__main__':

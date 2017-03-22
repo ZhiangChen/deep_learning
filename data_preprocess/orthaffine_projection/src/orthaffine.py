@@ -96,6 +96,7 @@ class OrthAffine():
 		image_array = self.project()
 		self.pub1.publish(image_array)
 		self.publishimage()
+		#self.saveimage('duck')
 		sys.stdout.write(".")
 		sys.stdout.flush()
 
