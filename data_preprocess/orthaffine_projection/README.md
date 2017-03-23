@@ -37,3 +37,12 @@ sudo make clean
 sudo make all
 sudo python setup.py install
 ```
+An example of voxel filter:
+```python
+import pcl
+pc = pcl.load('kinect_snapshot.pcd')
+fil = pc.make_voxel_grid_filter()
+fil.set_leaf_size(0.005,0.005,0.005)
+new_pc = fil.filter()
+new_points = new_pc.to_array()
+```
