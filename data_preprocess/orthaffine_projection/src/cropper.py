@@ -32,7 +32,6 @@ class Cropper():
 			if [x,y] not in indices:
 				indices.append([x,y])
 				images.append(image_numpy[x:x+self.image_size , y:y+self.image_size])
-		images = np.asarray(images).reshape(-1,self.image_size,self.image_size)
 		return images
 
 	def set_boxes(self,bias):
@@ -43,7 +42,7 @@ class Cropper():
 		self.xy = delta + bias
 
 	def arraycrop(self,image_numpy,save_crop=False):
-		images = np.asarray([image_numpy[x:x+self.image_size , y:y+self.image_size] for x,y in self.xy]).reshape(-1,self.image_size,self.image_size)
+		images = [image_numpy[x:x+self.image_size , y:y+self.image_size] for x,y in self.xy]
 		return images
 
 	def crop_pickle(self,pickle_name,func=1,bias=[[0,0]],nm=5):
@@ -60,12 +59,14 @@ class Cropper():
 			self.set_boxes(bias)
 			for name, value in data.iteritems():
 				cropped_images = self.arraycrop(value)
-				images.setdefault(name,cropped_images)
+				for key, cropped_image in enumerate(cropped_images):
+					images.setdefault(str(key)+'-'+name,cropped_image)
 
 		elif func == 2:
 			for name, value in data.iteritems():
 				cropped_images = self.randomcrop(value,nm)
-				images.setdefault(name,cropped_images)
+				for key, cropped_image in enumerate(cropped_images):
+					images.setdefault(str(key)+'-'+name,cropped_image)
 
 		with open('new_'+pickle_name,'wb') as f:
 			save={
