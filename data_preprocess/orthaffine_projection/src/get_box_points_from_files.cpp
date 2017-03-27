@@ -48,6 +48,10 @@ float _bnZ = -0.02;
 float _bmX = 0.115;
 float _bmY = 0.08;
 float _bmZ = 0.1;
+float _delta_yu = 0.025;
+float _delta_yd = 0.005;
+float _delta_xl = 0.01;
+float _delta_xr = 0.01;
 // Projection Parameters
 float _mDis = 0.92;  // darkest, float!
 float _nDis = 0.77; // brightest, float!
@@ -212,9 +216,18 @@ void loadParameters(ros::NodeHandle nh)
     nh.getParam("bmX",_bmX);
     nh.getParam("bmY",_bmY);
     nh.getParam("bmZ",_bmZ);
+    nh.getParam("delta_yu",_delta_yu);
+    nh.getParam("delta_yd",_delta_yd);
+    nh.getParam("delta_xl",_delta_xl);
+    nh.getParam("delta_xr",_delta_xr);
     nh.getParam("Nv",_Nv);
     nh.getParam("Nu",_Nu);
     nh.getParam("focal_len",_focal_len);
     nh.getParam("mDis",_mDis);
     nh.getParam("nDis",_nDis);
+
+    _bmY += _delta_yu;
+    _bnY -= _delta_yd;
+    _bnX -+ _delta_xl;
+    _bmX += _delta_xr;
 }

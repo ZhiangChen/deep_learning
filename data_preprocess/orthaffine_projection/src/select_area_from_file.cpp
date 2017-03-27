@@ -35,6 +35,10 @@ void box_filter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr  inputCloud, Eigen::Vecto
 #define Nu 200
 #define image_size 40
 #define box_size 60
+#define delta_yu 0.015
+#define delta_yd 0.005
+#define delta_xl 0.01
+#define delta_xr 0.01
 
 int main(int argc, char** argv) 
 {
@@ -192,6 +196,10 @@ int main(int argc, char** argv)
     		text += "bmX: " + boost::lexical_cast<std::string>(boxm[0]) + "\n";
     		text += "bmY: " + boost::lexical_cast<std::string>(boxm[1]) + "\n";
     		text += "bmZ: " + boost::lexical_cast<std::string>(boxm[2]) + "\n";
+            text += "delta_yu: " + boost::lexical_cast<std::string>(delta_yu) + "\n";
+            text += "delta_yd: " + boost::lexical_cast<std::string>(delta_yd) + "\n";
+            text += "delta_xl: " + boost::lexical_cast<std::string>(delta_xl) + "\n";
+            text += "delta_xr: " + boost::lexical_cast<std::string>(delta_xr) + "\n";
     		text += "#Projection Parameters\n";
     		text += "Nv: " + boost::lexical_cast<std::string>(Nv) + "\n";
     		text += "Nu: " + boost::lexical_cast<std::string>(Nu) + "\n";

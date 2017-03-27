@@ -26,9 +26,9 @@ for theta_ in [25,30,35]:
 	prefix = str(theta_)+'-'
 	for f in pcd_files:
 		oa.readpcd(f)
-		oa.affine()
-		oa.interpolate(theta)
-		oa.project()
+		oa.affine_pro()
+		oa.interpolate_large(theta)
+		oa.project_large()
 		name = prefix+'-'.join(f.split('.')[0].split('_')[1:])+'.png'
 		images.setdefault(name,oa.image_numpy)
 		#oa.savepcd('box.pcd')

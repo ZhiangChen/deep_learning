@@ -14,7 +14,13 @@ from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
 import matplotlib.pyplot as plt
 from cv_bridge import CvBridge, CvBridgeError
-
+'''
+from orthaffine import OrthAffine as OA
+theta = 30.0/180.0*3.14
+oa = OA(theta)
+oa.readpcd('box_points.pcd')
+oa.affine_pro()
+'''
 class OrthAffine():
 	def __init__(self,theta):
 		'unit of theta is rad'
@@ -50,7 +56,45 @@ class OrthAffine():
 		new_y = np.dot(yz,np.transpose(self.R))[:,0]
 		self.points[:,1] = new_y
 
-	def interpolate(self,theta):
+	def affine_pro(self):
+		step_size = (self.bmX - self.bnX)/self.image_size
+		nm = int((self.box_size - self.image_size)/2.0)
+		lf_x = np.asarray([self.bnX-step_size*i for i in range(nm)]).reshape((-1,1))
+		lf_x = np.repeat(lf_x,self.image_size,axis=1).reshape(-1,1)
+		lf_y = np.asarray([self.bmY-step_size*i for i in range(self.image_size)]).reshape((-1,1))
+		lf_y = np.repeat(lf_y,nm,axis=1).transpose().reshape(-1,1)
+		lf_xy = np.concatenate((lf_x,lf_y),axis=1)
+		
+		rt_x = np.asarray([self.bmX+step_size*i for i in range(nm)]).reshape((-1,1))
+		rt_x = np.repeat(rt_x,self.image_size,axis=1).reshape(-1,1)
+		rt_y = np.asarray([self.bmY-step_size*i for i in range(self.image_size)]).reshape((-1,1))
+		rt_y = np.repeat(rt_y,nm,axis=1).transpose().reshape(-1,1)
+		rt_xy = np.concatenate((rt_x,rt_y),axis=1)
+		
+		up_x = np.asarray([self.bnX+step_size*i for i in range(self.image_size)]).reshape((-1,1))
+		up_x = np.repeat(up_x,nm,axis=1).reshape(-1,1)
+		up_y = np.asarray([self.bmY+step_size*i for i in range(nm)]).reshape((-1,1))
+		up_y = np.repeat(up_y,self.image_size,axis=1).transpose().reshape(-1,1)
+		up_xy = np.concatenate((up_x,up_y),axis=1)
+		
+		lw_x = np.asarray([self.bnX+step_size*i for i in range(self.image_size)]).reshape((-1,1))
+		lw_x = np.repeat(lw_x,nm,axis=1).reshape(-1,1)
+		lw_y = np.asarray([self.bnY-step_size*i for i in range(nm)]).reshape((-1,1))
+		lw_y = np.repeat(lw_y,self.image_size,axis=1).transpose().reshape(-1,1)
+		lw_xy = np.concatenate((lw_x,lw_y),axis=1)
+		
+		ex_xy = np.concatenate((lf_xy,rt_xy,up_xy,lw_xy),axis=0).astype(np.float32)
+
+		ex_z = griddata(self.points[:,0:2],self.points[:,2],(ex_xy[:,0],ex_xy[:,1]),method='nearest',fill_value=0.0)
+		ex_pts = np.concatenate((ex_xy,ex_z.reshape(-1,1)),axis=1)
+		self.points = np.concatenate((self.points,ex_pts),axis=0)
+
+		yz = self.points[:,1:3]
+		new_y = np.dot(yz,np.transpose(self.R))[:,0]
+		self.points[:,1] = new_y
+
+
+	def interpolate_large(self,theta):
 		'''This method is only used to interpolate large box'''
 		xy = self.points[:,0:2]
 		z = self.points[:,2]
@@ -70,7 +114,7 @@ class OrthAffine():
 		#print(new_points.shape)
 		self.points = new_points.copy()
 
-	def interpolate(self,theta,bnX,bmX,bnY,bmY):
+	def interpolate_small(self,theta,bnX,bmX,bnY,bmY):
 		'''This method is only used to interpolate small box defined by its arguments'''
 		xy = self.points[:,0:2]
 		z = self.points[:,2]
@@ -79,6 +123,23 @@ class OrthAffine():
 		grid_x = np.asarray([bnX+x_step_size*i for i in range(self.image_size)]).reshape((-1,1))
 		grid_x = np.repeat(grid_x,self.image_size,axis=1)
 		grid_y = np.asarray([bnY*cos(theta)+y_step_size*i for i in range(self.image_size)]).reshape((-1,1))
+		grid_y = np.repeat(grid_y,self.image_size,axis=1).transpose()
+		grid_z = griddata(xy,z,(grid_x,grid_y),method='nearest',fill_value=0.0)
+		new_points = np.asarray([grid_x,grid_y,grid_z]).transpose().reshape((-1,3)).astype(np.float32)
+		#print(new_points.transpose().shape)
+		#new_points = np.swapaxes(new_points,0,2).reshape((-1,3)).astype(np.float32)
+		#print(new_points.shape)
+		self.points = new_points.copy()
+
+	def interpolate(self,theta):
+		'''This method is only used to interpolate small box defined by its arguments'''
+		xy = self.points[:,0:2]
+		z = self.points[:,2]
+		x_step_size = (self.bmX - self.bnX)/self.image_size
+		y_step_size = (self.bmY - self.bnY)/self.image_size*cos(theta)
+		grid_x = np.asarray([self.bnX+x_step_size*i for i in range(self.image_size)]).reshape((-1,1))
+		grid_x = np.repeat(grid_x,self.image_size,axis=1)
+		grid_y = np.asarray([self.bnY*cos(theta)+y_step_size*i for i in range(self.image_size)]).reshape((-1,1))
 		grid_y = np.repeat(grid_y,self.image_size,axis=1).transpose()
 		grid_z = griddata(xy,z,(grid_x,grid_y),method='nearest',fill_value=0.0)
 		new_points = np.asarray([grid_x,grid_y,grid_z]).transpose().reshape((-1,3)).astype(np.float32)
