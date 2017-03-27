@@ -44,7 +44,7 @@ name2string = {'v8':'v8 can','duck':'ducky','stapler':'stapler','pball':'ping pa
 angles_list = np.asarray([i*18 for i in range(10)]).astype(np.float32)
 
 num_labels = 11
-image_size = 50
+image_size = 40
 '''ConvNet'''
 k1_size = 6
 k1_stride = 1

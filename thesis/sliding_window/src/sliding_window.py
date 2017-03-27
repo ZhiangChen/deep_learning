@@ -35,6 +35,8 @@ x_step = 0.005
 y_step = 0.005
 SAVEIMAGE = False
 
+s_data = small_data
+
 class SlidingWindow():
 	def __init__(self):
 		self.sub1 = rospy.Subscriber('/tf_patch', PointCloud2, self.callback, queue_size=1)
@@ -96,8 +98,8 @@ class SlidingWindow():
 		yd = center[1] + self.bnY		
 		self.oa.readpoints(box)
 		self.oa.affine()
-		self.oa.interpolate(theta,bnX=xl,bmX=xr,bnY=yd,bmY=yu)
-		image_array = self.oa.project()
+		self.oa.interpolate_small(theta,bnX=xl,bmX=xr,bnY=yd,bmY=yu)
+		image_array = self.oa.project_small()
 		#self.i = self.i+1
 		#self.oa.saveimage(str(self.i)+'.png')
 		return image_array
@@ -153,6 +155,7 @@ class SlidingWindow():
 		images = np.asarray(self.images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
 		"ADD SMALL DATA"
 		nm_images = images.shape[0]
+		print(images.shape,small_data.shape)
 		images = np.concatenate((images,small_data),axis=0)
 		classes, scores, angles = self.ev.evaluate(images)
 		classes = classes[:nm_images,:]

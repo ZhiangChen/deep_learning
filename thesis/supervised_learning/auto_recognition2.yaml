@@ -13,6 +13,7 @@ bnZ: -0.0149999997
 bmX: 0.0949999988
 bmY: 0.0949999988
 bmZ: 0.100000001
+box_size: 60
 #Projection Parameters
 Nv: 200
 Nu: 200
@@ -29,4 +30,4 @@ tplf_x: 53
 tplf_y: 75
 btrt_x: 92
 btrt_y: 110
-image_size: 50
+image_size: 40

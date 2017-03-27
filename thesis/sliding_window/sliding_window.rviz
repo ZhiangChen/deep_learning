@@ -91,18 +91,18 @@ Visualization Manager:
       Use rainbow: true
       Value: true
     - Class: rviz/Axes
-      Enabled: false
+      Enabled: true
       Length: 1
       Name: Axes
-      Radius: 0.0199999996
+      Radius: 0.00499999989
       Reference Frame: <Fixed Frame>
-      Value: false
+      Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /calc
       Name: Marker
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -126,7 +126,7 @@ Visualization Manager:
       Marker Topic: /gball
       Name: Marker
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -150,7 +150,7 @@ Visualization Manager:
       Marker Topic: /pball
       Name: Marker
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -158,7 +158,7 @@ Visualization Manager:
       Marker Topic: /sponge
       Name: Marker
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -214,10 +214,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.979796886
+      Pitch: 0.874796331
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.91360903
+      Yaw: 5.99360466
     Saved: ~
 Window Geometry:
   Displays:
