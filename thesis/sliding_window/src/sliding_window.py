@@ -31,9 +31,9 @@ from math import *
 
 
 theta = 30.0/180*pi
-x_step = 0.005
-y_step = 0.005
-SAVEIMAGE = False
+x_step = 0.01
+y_step = 0.01
+LOGFILE = False
 
 s_data = small_data
 
@@ -92,16 +92,16 @@ class SlidingWindow():
 		return image
 
 	def get_image(self, box, center):
-		xl = center[0] + self.bnX
-		xr = center[0] + self.bmX
-		yu = center[1] + self.bmY
-		yd = center[1] + self.bnY		
+		center_xy = np.asarray([center[0],center[1],0])
+		box = box - center_xy		
 		self.oa.readpoints(box)
 		self.oa.affine()
-		self.oa.interpolate_small(theta,bnX=xl,bmX=xr,bnY=yd,bmY=yu)
+		self.oa.interpolate(theta)
 		image_array = self.oa.project_small()
-		#self.i = self.i+1
-		#self.oa.saveimage(str(self.i)+'.png')
+		if LOGFILE:
+			self.i = self.i+1
+			self.oa.saveimage(str(self.i)+'.png')
+			self.oa.savepcd(str(self.i)+'.pcd')
 		return image_array
 
 	def single_object_filter(self,score=0.9):
@@ -121,14 +121,9 @@ class SlidingWindow():
 			pts = self.results[(self.results[:,1]>obj) & (self.results[:,1]<(obj+0.5))]
 			if pts.shape[0] > 1:
 				centers = pts[:,3:5]
-				#centers = np.repeat(centers,2,axis=0)
-				#print('centers',centers)
-				#print(centers.shape)
 				v = np.var(centers,axis=0)
 				print 'variance: ',v
 				print 'points number: ',pts.shape[0]
-				if SAVEIMAGE == True:
-					self.saveimage(int(pts[0,5]),name2string[value2name[obj]]+'.png')
 				center = np.mean(centers,axis=0)
 				#print('center',center)
 				#print(center.shape)
@@ -155,12 +150,15 @@ class SlidingWindow():
 		images = np.asarray(self.images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
 		"ADD SMALL DATA"
 		nm_images = images.shape[0]
-		print(images.shape,small_data.shape)
 		images = np.concatenate((images,small_data),axis=0)
 		classes, scores, angles = self.ev.evaluate(images)
 		classes = classes[:nm_images,:]
 		scores = scores[:nm_images,:]
 		angles = angles[:nm_images,:]
+		if LOGFILE:
+			with open('classes','w') as f:
+				for ind, obj in enumerate(classes):
+					f.write(name2string[value2name[int(obj[0])]]+' '+str(scores[ind,0]) +'\n')
 		#classes_ = [value2name[int(value[0])] for value in classes.tolist()]
 		#classes_ = [name2string[name] for name in classes_]
 		#print(classes_)
