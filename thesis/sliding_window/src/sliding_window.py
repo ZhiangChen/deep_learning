@@ -33,7 +33,7 @@ from math import *
 theta = 30.0/180*pi
 x_step = 0.01
 y_step = 0.01
-LOGFILE = False
+LOGFILE = True
 
 s_data = small_data
 
