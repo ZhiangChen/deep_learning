@@ -33,9 +33,9 @@ from math import *
 theta = 30.0/180*pi
 x_step = 0.01
 y_step = 0.01
-LOGFILE = True
+LOGFILE = False
+SINGLE = True
 
-s_data = small_data
 
 class SlidingWindow():
 	def __init__(self):
@@ -147,24 +147,48 @@ class SlidingWindow():
 		rospy.loginfo("The number of centers: %d" % len(centers))
 		self.i=0
 		self.images = [self.box_filter(center) for center in centers]
-		images = np.asarray(self.images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
-		"ADD SMALL DATA"
-		nm_images = images.shape[0]
-		images = np.concatenate((images,small_data),axis=0)
-		classes, scores, angles = self.ev.evaluate(images)
-		classes = classes[:nm_images,:]
-		scores = scores[:nm_images,:]
-		angles = angles[:nm_images,:]
+		if SINGLE:
+			classes = list()
+			scores = list()
+			angles = list()
+			nm_images = len(self.images)
+			batch_size = 5
+			nm_batch = nm_images/batch_size
+			for i in range(nm_batch):
+				offset = (i*batch_size)%(nm_images-batch_size)
+				images = self.images[offset:(offset+batch_size)]
+				size = len(images)
+				images = np.asarray(images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
+				images = np.concatenate((images,small_data),axis=0)
+				c, s, a = self.ev.evaluate(images)
+				classes.append(c[:size,0])
+				scores.append(s[:size,0])
+				angles.append(a[:size,0])
+
+			classes = np.asarray(classes).reshape(-1,1)
+			scores = np.asarray(scores).reshape(-1,1)
+			angles = np.asarray(angles).reshape(-1,1)
+		else:
+			images = np.asarray(self.images).reshape(-1,self.image_size,self.image_size,1).astype(np.float32)
+			"ADD SMALL DATA"
+			nm_images = images.shape[0]
+			images = np.concatenate((images,small_data),axis=0)
+			classes, scores, angles = self.ev.evaluate(images)
+			classes = classes[:nm_images,:]
+			scores = scores[:nm_images,:]
+			angles = angles[:nm_images,:]
+			#classes_ = [value2name[int(value[0])] for value in classes.tolist()]
+			#classes_ = [name2string[name] for name in classes_]
+			#print(classes_)
+			#print(scores)
+		self.results = np.concatenate((scores,classes,angles,self.centers[:,0].reshape(-1,1),self.centers[:,1].reshape(-1,1),np.arange(nm_images).reshape(-1,1)),axis=1)
+		centers, angles, objects = self.single_object_filter()
+		
 		if LOGFILE:
 			with open('classes','w') as f:
 				for ind, obj in enumerate(classes):
 					f.write(name2string[value2name[int(obj[0])]]+' '+str(scores[ind,0]) +'\n')
-		#classes_ = [value2name[int(value[0])] for value in classes.tolist()]
-		#classes_ = [name2string[name] for name in classes_]
-		#print(classes_)
-		#print(scores)
-		self.results = np.concatenate((scores,classes,angles,self.centers[:,0].reshape(-1,1),self.centers[:,1].reshape(-1,1),np.arange(nm_images).reshape(-1,1)),axis=1)
-		centers, angles, objects = self.single_object_filter()
+
 		print('There are %d objects' % len(objects))
 
 

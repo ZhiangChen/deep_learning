@@ -46,7 +46,7 @@ angles_list = np.asarray([i*18 for i in range(10)]).astype(np.float32)
 num_labels = 11
 image_size = 40
 '''ConvNet'''
-k1_size = 6
+k1_size = 4
 k1_stride = 1
 k1_depth = 1
 k1_nm = 16
@@ -59,7 +59,7 @@ k2_nm = 16
 m1_size = image_size-k1_size+k1_stride
 n2 = m1_size*m1_size*k1_nm
 
-k3_size = 6
+k3_size = 4
 k3_stride = 1
 k3_depth = 16
 k3_nm = 32
@@ -73,7 +73,7 @@ k4_nm = 32
 m3_size = (m2_size-k3_size)/k3_stride+1
 n4 = m3_size*m3_size*k3_nm
 
-k5_size = 3
+k5_size = 4
 k5_stride = 1
 k5_depth = 32
 k5_nm = 64
@@ -258,6 +258,7 @@ with graph.as_default():
 
 config = tf.ConfigProto()
 #config.log_device_placement = True 
+config.gpu_options.allocator_type = 'BFC'
 session = tf.Session(graph=graph, config = config)
 saver.restore(session, "./model.ckpt")
 
