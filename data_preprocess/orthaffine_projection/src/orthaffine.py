@@ -169,7 +169,13 @@ class OrthAffine():
 		z = (z - z_mean)/(self.bmZ - self.bnZ)
 		self.image_numpy = np.flipud(z.reshape(self.image_size,self.image_size))
 		return z
-		
+
+	def project_one(self):
+		z = self.points[:,2]
+		z = (z - self.bnZ)/(self.bmZ - self.bnZ)
+		self.image_numpy = np.flipud(z.reshape(self.image_size,self.image_size))
+		return z
+
 	def saveimage(self,filename):
 		'''saveimage can save small box image or large box image depending on what interpolate and project methods are used previously'''
 		z_mean = (self.bmZ - self.bnZ)/2.0
