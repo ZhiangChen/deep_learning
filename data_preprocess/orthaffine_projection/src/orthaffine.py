@@ -38,6 +38,7 @@ class OrthAffine():
 		self.image_size = rospy.get_param("image_size")
 		self.box_size = rospy.get_param("box_size")
 		self.bridge = CvBridge()
+		self.p = pcl.PointCloud()
 		rospy.loginfo("Orthaffine Initialized!")
 
 	def readpcd(self,filename):
