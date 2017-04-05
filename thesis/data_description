@@ -1,0 +1,4 @@
+depth_data: center-cropped depth images
+depth_data.h5: computationally shifted images ranging from 0 to 1
+depth_data2.h5: computationally shifted images ranging from -0.5 to 0.5
+resized_depth_data2.h5: computationally shifted images (48x48) ranging with zero mean 

@@ -25,3 +25,6 @@ images/pcd
 **/depth_data.h5
 **/*pickle
 **/*.gz
+**/*.h5
+**/new_pickle_021
+**/new_pickle_mean

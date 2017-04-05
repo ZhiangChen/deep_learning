@@ -4,11 +4,12 @@ The MIT License (MIT)
 Copyright (c) 2016 Yoshihiro Sugi
 '''
 
+
 import tensorflow as tf
 
 class Generator:
     def __init__(self, depths=[1024, 512, 256, 128], s_size=4):
-        self.depths = depths + [3]
+        self.depths = depths + [1]
         self.s_size = s_size
         self.reuse = False
 
@@ -42,7 +43,7 @@ class Generator:
 
 class Discriminator:
     def __init__(self, depths=[64, 128, 256, 512]):
-        self.depths = [3] + depths
+        self.depths = [1] + depths
         self.reuse = False
 
     def __call__(self, inputs, training=False, name=''):
@@ -93,6 +94,7 @@ class DCGAN:
             dict of each models' losses.
         """
         generated = self.g(self.z, training=True)
+        print(generated)
         g_outputs = self.d(generated, training=True, name='g')
         t_outputs = self.d(traindata, training=True, name='t')
         # add each losses to collection
