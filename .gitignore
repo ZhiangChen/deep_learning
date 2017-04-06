@@ -28,3 +28,5 @@ images/pcd
 **/*.h5
 **/new_pickle_021
 **/new_pickle_mean
+**/images
+**/logdir

@@ -94,7 +94,6 @@ class DCGAN:
             dict of each models' losses.
         """
         generated = self.g(self.z, training=True)
-        print(generated)
         g_outputs = self.d(generated, training=True, name='g')
         t_outputs = self.d(traindata, training=True, name='t')
         # add each losses to collection
