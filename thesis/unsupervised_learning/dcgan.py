@@ -7,6 +7,12 @@ Copyright (c) 2016 Yoshihiro Sugi
 
 import tensorflow as tf
 
+nm_class_hidden = 100
+nm_angle_hidden = 100
+nm_class = 11
+nm_angle = 10
+
+
 class Generator:
     def __init__(self, depths=[1024, 512, 256, 128], s_size=4):
         self.depths = depths + [1]
@@ -69,9 +75,25 @@ class Discriminator:
                 batch_size = outputs.get_shape()[0].value
                 reshape = tf.reshape(outputs, [batch_size, -1])
                 outputs = tf.layers.dense(reshape, 2, name='outputs')
+            with tf.variable_scope('retrain'):
+            	class_hidden = tf.layers.dense(reshape, nm_class_hidden, name='class_hidden')
+            	self.class_logits = tf.layers.dense(class_hidden, nm_class, name='class_logits')
+            	angle_hidden = tf.layers.dense(reshape, nm_angle_hidden, name='angle_hidden')
+            	self.angle_logits = tf.layers.dense(angle_hidden, nm_angle, name='angle_logits')          	
+
         self.reuse = True
         self.variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='d')
         return outputs
+
+    '''Zhiang Chen, April 2017'''
+    def retrain_loss(self, traindata, class_label, angle_label):
+    	loss_classes = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = self.class_logits, \
+    																			labels = class_label))
+    	loss_angles = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = self.angle_logits, \
+    																			labels = angle_label))
+
+    	self.retrain_loss = 0.65*loss_classes + 0.35*loss_angles
+    	self.retrain_optimizer = tf.train.AdamOptimizer(0.0005).minimize(loss)
 
 
 class DCGAN:
@@ -120,6 +142,7 @@ class DCGAN:
             self.d: tf.add_n(tf.get_collection('d_losses'), name='total_d_loss'),
         }
 
+
     def train(self, losses, learning_rate=0.0002, beta1=0.5):
         """
         Args:
@@ -134,6 +157,11 @@ class DCGAN:
         with tf.control_dependencies([g_opt_op, d_opt_op]):
             return tf.no_op(name='train')
 
+    '''Zhiang Chen, April 2017'''
+    def retrain(self, traindata, class_label, angle_label):
+   		self.d(traindata, training=True, name='retrain')
+   		d.retrain_loss(traindata, class_label, angle_label)
+
     def sample_images(self, row=8, col=8, inputs=None):
         if inputs is None:
             inputs = self.z
@@ -145,3 +173,13 @@ class DCGAN:
             rows.append(tf.concat(images[col * i + 0:col * i + col], 2))
         image = tf.concat(rows, 1)
         return tf.image.encode_jpeg(tf.squeeze(image, [0]))
+
+
+
+'''
+- add train class and angle shuffle batch
+- add test class and angle shuffle batch
+- add validation value, class and angle shuffle batch
+- call dcgan.retrain(train_images, train_class, train_angle) in cell(5)
+- sess.run([dcgan.d.retrain_loss, dcgan.d.retrain_optimizer]) in the training loop
+'''
