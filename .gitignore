@@ -30,3 +30,4 @@ images/pcd
 **/new_pickle_mean
 **/images
 **/logdir
+**/model.*
