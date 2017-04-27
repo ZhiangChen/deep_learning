@@ -8,4 +8,5 @@ rosrun orthaffine_projection orthaffine.py
 python evaluator.py
 rostopic echo prediction
 rviz: add image by topic 'p_box_image/image'
+python ./recognizer_local/iot_client.py
 ```

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+<include file ="$(find kinect2_bridge)/launch/kinect2_bridge.launch"/>
+<rosparam command="load" file="./auto_recognition2.yaml" />
+<node pkg ="rviz" type ="rviz" name ="rviz"/>
+<node name="box_points_pub" pkg="depthnet" type="box_points_pub"/>
+<node name="orthaffine" pkg="orthaffine_projection" type="orthaffine.py"/>
+</launch>

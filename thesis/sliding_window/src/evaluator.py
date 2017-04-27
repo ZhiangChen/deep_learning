@@ -27,6 +27,7 @@ from depthnet.msg import PredictionMSG
 import math
 from six.moves import cPickle as pickle
 
+rospy.loginfo(os.getcwd())
 with open('small_data', 'rb') as f:
     save = pickle.load(f)
     small_data = save['small_data']
@@ -277,9 +278,9 @@ class evaluator:
         self.pub2  = rospy.Publisher('p_box_image/image',Image, queue_size=1)
         self.pub3 = rospy.Publisher('predicted_class', String, queue_size=1)
         self.bridge = CvBridge()
-        self.pt1x = -25.0
+        self.pt1x = -15.0
         self.pt1y = 0.0
-        self.pt2x = 25.0
+        self.pt2x = 15.0
         self.pt2y = 0.0
         rospy.loginfo("Evaluator Initialized!")
 
@@ -321,10 +322,11 @@ class evaluator:
             pre.name1, pre.value1, pre.name2, pre.value2, pre.angle = name1, float(value1), name2, float(value2), angle
             self.pub1.publish(pre)
             image = ((input_image.reshape(image_size,image_size) + 0.65)*255).astype(np.uint8)
-            pt1x = int(self.pt1x * math.cos(math.radians(angle)) + self.pt1y * -math.sin(math.radians(angle))) + 25
-            pt1y = int(self.pt1x * math.sin(math.radians(angle)) + self.pt1y * math.cos(math.radians(angle))) + 25
-            pt2x = int(self.pt2x * math.cos(math.radians(angle)) + self.pt2y * -math.sin(math.radians(angle))) + 25
-            pt2y = int(self.pt2x * math.sin(math.radians(angle)) + self.pt2y * math.cos(math.radians(angle))) + 25
+            image = image[5:35,10:40]
+            pt1x = int(self.pt1x * math.cos(math.radians(angle)) + self.pt1y * -math.sin(math.radians(angle))) + 15
+            pt1y = int(self.pt1x * math.sin(math.radians(angle)) + self.pt1y * math.cos(math.radians(angle))) + 15
+            pt2x = int(self.pt2x * math.cos(math.radians(angle)) + self.pt2y * -math.sin(math.radians(angle))) + 15
+            pt2y = int(self.pt2x * math.sin(math.radians(angle)) + self.pt2y * math.cos(math.radians(angle))) + 15
             cv2.line(image,(pt1x,pt1y),(pt2x,pt2y),150,1)
             ros_image = self.bridge.cv2_to_imgmsg(image, encoding="mono8")
             self.pub2.publish(ros_image)
