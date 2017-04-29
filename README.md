@@ -8,3 +8,5 @@ code: https://github.com/ZhiangChen/deep_learning/tree/master/auto_recognition2
 
 ### 3. [Multi-task Network for Object Recognition and Orientation Detection](https://www.youtube.com/watch?v=qwG2HYK_bys)
 code: https://github.com/ZhiangChen/deep_learning/tree/master/depthnet
+
+### 4. [Semi-supervised Learning](https://github.com/ZhiangChen/deep_learning/tree/master/thesis/supervised_learning)
